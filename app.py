@@ -26,7 +26,7 @@ if st.session_state.show_help:
         st.divider()
         col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
         with col2:
-            if st.button("✕ Close", key="close_help_bottom", use_container_width=True):
+            if st.button("✕ Close", key="close_help_bottom", width='stretch'):
                 st.session_state.show_help = False
                 st.rerun()
     except FileNotFoundError:
@@ -59,7 +59,7 @@ else:
 
         st.success("Done!")
 
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width='stretch')
 
         st.download_button(
             "Download CSV",
