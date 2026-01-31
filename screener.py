@@ -3,6 +3,7 @@ import yfinance as yf
 import requests
 from io import StringIO
 from datetime import datetime
+import streamlit as st
 
 RSI_PERIOD = 14
 RSI_OVERSOLD = 30
@@ -40,6 +41,7 @@ def reverse_strategy(close, rsi, dma50, dma200):
         return "HOLD"
 
 # ================= NSE Universe =================
+@st.cache_data(ttl=604800)  # Cache for 7 days (NSE lists rarely change)
 def fetch_nse_universe(which):
     if which == "nifty50":
         url = "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
@@ -80,6 +82,7 @@ def parse_universe(universe, custom_tickers=None):
     raise ValueError("Invalid universe")
 
 # ================= MAIN LOGIC =================
+@st.cache_data(ttl=86400)  # Cache for 24 hours (1 day)
 def run_screener(strategy="contra", universe="nifty50", custom_tickers=None):
     tickers = parse_universe(universe, custom_tickers)
 
