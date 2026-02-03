@@ -83,18 +83,29 @@ if df.empty:
     st.stop()
 
 # -------- Results --------
-st.subheader("📋 Screener Results")
-
 if st.session_state.scan_info:
-    st.caption(f"📅 {st.session_state.scan_info}")
+    st.info(f"📋 Screener Results as of: {st.session_state.scan_info.replace('Data as of: ', '')}")
+else:
+    st.info("📋 Screener Results")
 
-st.info("ℹ️ **Rank 1 = Best opportunity. Higher Rank = weaker signal.**")
-st.dataframe(df, width="stretch")
+# ================= STOCK FILTER =================
+filter_text = st.text_input("🔍 Filter by Stock name")
+
+if filter_text:
+    df_filtered = df[df["Stock"].str.contains(filter_text, case=False, na=False)]
+else:
+    df_filtered = df
+
+st.dataframe(df_filtered, width="stretch")
 
 # -------- Chart Viewer --------
 st.subheader("📈 Chart Viewer")
 
-symbols = df["Ticker"].tolist()
+symbols = df_filtered["Ticker"].tolist()
+
+if not symbols:
+    st.warning("No stocks match your filter.")
+    st.stop()
 
 if st.session_state.chart_symbol not in symbols:
     st.session_state.chart_symbol = symbols[0]
