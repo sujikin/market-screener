@@ -1,0 +1,50 @@
+Stock,Ticker,Close,RSI,Vol_Spike,Action,1Y_Return_%,Rank
+Godrej Consumer Products Ltd.,GODREJCP.NS,1146.4,27.88,1.69,CONTRA BUY,0.6,1
+Havells India Ltd.,HAVELLS.NS,1318.0,29.52,0.91,CONTRA BUY,-6.86,1
+Pidilite Industries Ltd.,PIDILITIND.NS,1427.8,31.74,2.08,CONTRA BUY,-2.65,1
+Info Edge (India) Ltd.,NAUKRI.NS,1250.7,33.89,1.67,CONTRA BUY,-6.1,1
+JSW Energy Ltd.,JSWENERGY.NS,459.15,35.4,1.07,CONTRA BUY,-3.66,1
+Indian Railway Finance Corporation Ltd.,IRFC.NS,115.12,37.14,1.01,CONTRA BUY,-1.39,1
+Hyundai Motor India Ltd.,HYUNDAI.NS,2208.8,33.47,1.77,BUY,-4.0,2
+Bank of Baroda,BANKBARODA.NS,285.4,39.38,1.59,BUY,-0.64,2
+TVS Motor Company Ltd.,TVSMOTOR.NS,3726.3,47.8,1.2,BUILD,8.08,3
+Bosch Ltd.,BOSCHLTD.NS,37740.0,48.75,1.14,BUILD,5.51,3
+Punjab National Bank,PNB.NS,123.86,48.99,0.73,BUILD,0.66,3
+Hindustan Zinc Ltd.,HINDZINC.NS,628.25,49.76,1.09,BUILD,35.81,3
+Adani Power Ltd.,ADANIPOWER.NS,143.62,50.38,3.33,BUILD,-2.19,3
+Adani Energy Solutions Ltd.,ADANIENSOL.NS,974.4,52.69,2.57,BUILD,0.3,3
+Vedanta Ltd.,VEDL.NS,675.65,57.08,0.97,BUILD,33.88,3
+Torrent Pharmaceuticals Ltd.,TORNTPHARM.NS,4045.6,58.28,1.55,BUILD,8.02,3
+Samvardhana Motherson International Ltd.,MOTHERSON.NS,121.32,60.38,2.48,BUILD,10.08,3
+Bharat Petroleum Corporation Ltd.,BPCL.NS,373.45,71.79,1.64,BUILD,7.91,3
+Indian Oil Corporation Ltd.,IOC.NS,167.58,73.14,1.33,BUILD,5.24,3
+Jindal Steel Ltd.,JINDALSTEL.NS,1149.7,76.28,0.76,BUILD,12.43,3
+Varun Beverages Ltd.,VBL.NS,451.1,18.33,4.74,WAIT,0.46,4
+Bajaj Housing Finance Ltd.,BAJAJHFL.NS,91.07,40.1,1.81,WAIT,-13.23,4
+Divi's Laboratories Ltd.,DIVISLAB.NS,6209.0,40.79,1.18,WAIT,-3.17,4
+Lodha Developers Ltd.,LODHA.NS,1031.9,43.96,1.26,WAIT,-11.06,4
+ICICI Lombard General Insurance Company Ltd.,ICICIGI.NS,1861.5,44.85,1.24,WAIT,-6.88,4
+Canara Bank,CANBK.NS,147.34,45.31,1.45,WAIT,-0.91,4
+Avenue Supermarts Ltd.,DMART.NS,3776.6,45.67,0.73,WAIT,-5.32,4
+GAIL (India) Ltd.,GAIL.NS,162.8,45.8,2.67,WAIT,-9.67,4
+Ambuja Cements Ltd.,AMBUJACEM.NS,528.25,46.47,1.34,WAIT,-3.22,4
+Tata Power Co. Ltd.,TATAPOWER.NS,365.1,47.47,0.97,WAIT,-3.92,4
+Mazagoan Dock Shipbuilders Ltd.,MAZDOCK.NS,2450.4,47.77,0.79,WAIT,-7.29,4
+Britannia Industries Ltd.,BRITANNIA.NS,5882.0,47.8,0.89,WAIT,0.26,4
+Shree Cement Ltd.,SHREECEM.NS,27020.0,47.96,1.88,WAIT,2.14,4
+LTIMindtree Ltd.,LTIM.NS,6044.0,47.98,0.48,WAIT,3.62,4
+Cholamandalam Investment and Finance Company Ltd.,CHOLAFIN.NS,1694.4,48.97,1.77,WAIT,0.53,4
+DLF Ltd.,DLF.NS,650.4,49.37,1.1,WAIT,-9.83,4
+Adani Green Energy Ltd.,ADANIGREEN.NS,932.1,49.43,2.53,WAIT,-7.86,4
+Hindustan Aeronautics Ltd.,HAL.NS,4470.4,50.71,1.39,WAIT,0.65,4
+Zydus Lifesciences Ltd.,ZYDUSLIFE.NS,902.9,50.89,1.82,WAIT,-2.76,4
+Indian Hotels Co. Ltd.,INDHOTEL.NS,681.5,51.26,0.49,WAIT,-6.19,4
+Life Insurance Corporation of India,LICI.NS,838.3,52.47,2.37,WAIT,-6.61,4
+REC Ltd.,RECLTD.NS,372.5,53.76,1.1,WAIT,5.9,4
+Solar Industries India Ltd.,SOLARINDS.NS,13793.0,58.31,1.91,WAIT,3.96,4
+Bajaj Holdings & Investment Ltd.,BAJAJHLDNG.NS,10915.0,58.63,1.11,WAIT,-6.23,4
+United Spirits Ltd.,UNITDSPR.NS,1366.1,61.42,0.7,WAIT,-4.06,4
+Power Finance Corporation Ltd.,PFC.NS,392.6,63.49,1.35,WAIT,9.74,4
+CG Power and Industrial Solutions Ltd.,CGPOWER.NS,661.55,66.09,2.3,WAIT,-2.86,4
+Siemens Ltd.,SIEMENS.NS,3211.7,66.5,1.7,WAIT,0.96,4
+ABB India Ltd.,ABB.NS,5668.5,72.03,1.7,WAIT,11.79,4

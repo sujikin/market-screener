@@ -1,0 +1,35 @@
+name: Nightly Market Scan
+
+on:
+  schedule:
+    - cron: "30 0 * * *"   # runs every day at 00:30 UTC
+  workflow_dispatch:      # allow manual run from GitHub UI
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run nightly scan
+        run: |
+          python nightly_scan.py
+
+      - name: Commit updated scan results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add latest_scan.csv
+          git commit -m "Nightly market scan update" || echo "No changes"
+          git push

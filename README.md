@@ -1,189 +1,306 @@
-# Stock Screener - User Guide for Beginners
+# 📊 Stock Screener – User Guide for Beginners
+
+## ⚠️ Important Disclaimer (Please Read First)
+
+This application is created **ONLY for educational and learning purposes**.
+
+It:
+- Demonstrates how technical indicators like RSI, MACD, and Volume can be combined
+- Helps users understand market data and screening logic
+- Is meant for **study, experimentation, and technical analysis learning**
+
+🚫 **This app does NOT provide investment advice**  
+🚫 **This app does NOT recommend buying or selling any stock**  
+🚫 **This app is NOT a trading system**  
+🚫 **This app is NOT a financial advisory tool**
+
+Any output shown in this app:
+- Should NOT be considered as a trading signal  
+- Should NOT be used directly for real-money trading  
+- Should NOT be treated as a recommendation  
+
+**Always consult a qualified financial advisor before making investment decisions.**
+
+You are solely responsible for any financial decisions you make.
+
+---
 
 ## What is this App?
 
-This is a **Stock Screener** — a tool that automatically analyzes stocks and tells you which ones might be good to buy right now based on specific patterns and conditions. Think of it as a financial assistant that watches the market and highlights opportunities for you.
+This is a **Stock Screener** — a tool that automatically analyzes stocks and highlights them based on **technical indicators** such as:
+
+- RSI (Relative Strength Index)
+- Moving Averages (50-DMA, 200-DMA)
+- MACD (Momentum)
+- Volume behavior
+
+Think of it as:
+> A learning tool to understand how technical screening works  
+> NOT a tool that tells you what to buy or sell
+
+---
+
+## Data Update Frequency
+
+This app uses **pre-generated daily scan results** to ensure fast performance.
+
+- Market scans are run **once per day**
+- Results are saved to data files
+- The scan date and time are shown in the app
+- The app only **loads existing results**, it does not calculate them live
+
+This design makes the app:
+- Faster
+- More stable
+- Easier to test and demonstrate
 
 ---
 
 ## Understanding the Results Table
 
-When you run the screener, you'll see a table with the following columns:
-
-### **Stock**
-- The name of the company (e.g., "Asian Paints Ltd.", "Reliance Industries")
-- This is the stock you're looking at
-
-### **Ticker**
-- A short code used to identify the stock on the stock exchange
-- Example: `ASIANPAINT.NS` (`.NS` means it's on the NSE - National Stock Exchange)
-- This is what you'd search for in your trading app
-
-### **Close**
-- The **current price** of the stock (in Indian Rupees)
-- This is the last price at which the stock was traded today
-
-### **RSI** (Relative Strength Index)
-**What it means in simple terms:**
-- A number between 0-100 that tells you if a stock is **"tired from falling"** or **"tired from rising"**
-- Think of it like a battery level for stock momentum
-
-**RSI Zones:**
-- **RSI < 30** = **Oversold** (very tired from falling, might bounce back up) ⬆️
-- **RSI 30-60** = **Neutral** (normal range, no extreme)
-- **RSI > 70** = **Overbought** (very tired from rising, might come down) ⬇️
-
-**Example:** 
-- Asian Paints RSI = 22.58 → Stock has fallen a lot, might recover soon
-- But this alone doesn't guarantee it will go up!
-
-### **Action** (The Recommendation)
-This is the key column - it tells you what the screener suggests:
-
-#### **CONTRA BUY** ⭐ (Best Opportunity)
-- **Best signal for buying** according to the strategy
-- Conditions: Price is below BOTH the 50-day and 200-day averages AND RSI is low
-- Meaning: Stock is in a downtrend BUT showing signs of extreme weakness, good for contrarian traders (betting against the trend)
-- Best for: Experienced investors betting on reversal
-
-#### **BUY** ⭐⭐ (Good Opportunity)
-- **Second best signal**
-- Conditions: Price is above 200-day average AND RSI is low
-- Meaning: Stock is in an uptrend but currently oversold, good buying opportunity
-- Best for: Regular investors who want to buy quality stocks at lower prices
-
-#### **BUILD** 🔄 (Accumulate Gradually)
-- **Moderate signal**
-- Conditions: Price is above both 50-day and 200-day averages
-- Meaning: Stock is in an uptrend, can add to your position gradually
-- Best for: Long-term investors who already own the stock
-
-#### **WAIT** ⏸️ (Not the Right Time)
-- **No clear signal**
-- Meaning: None of the buying conditions are met
-- Action: Watch the stock, don't buy yet
-- This is where **Asian Paints is right now!**
+When you load a scan, you will see a table with these columns:
 
 ---
 
-## Why is Asian Paints in "WAIT" even with RSI 22.58?
+### **Stock**
+- The name of the company (e.g., "Asian Paints Ltd.", "Reliance Industries")
+- This is the stock being analyzed
 
-Even though RSI is very low (22.58 = oversold), Asian Paints shows "WAIT" because:
+---
 
-**The screener requires BOTH conditions:**
-1. ✅ RSI must be low (it is - 22.58)
-2. ❌ Price position vs moving averages (this is NOT met)
+### **Ticker**
+- Exchange code used to identify the stock  
+- Example: `ASIANPAINT.NS`  
+- `.NS` means the stock is listed on NSE (India)
 
-For a "BUY" signal, price must be **above 200-day average**. For "CONTRA BUY", price must be **below both averages**.
+---
 
-Asian Paints is likely in a middle position where the price relationship with moving averages doesn't meet the criteria. Even with an attractive RSI, the broader trend pattern isn't aligned with the strategy.
+### **Close**
+- The most recent closing price (in INR)
+
+---
+
+### **RSI (Relative Strength Index)**
+
+RSI measures how fast a stock has moved up or down recently.
+
+**RSI Zones:**
+- **RSI < 30** → Oversold (price fell rapidly)
+- **RSI 30–60** → Neutral
+- **RSI > 70** → Overbought (price rose rapidly)
+
+Low RSI does NOT mean the stock must go up.  
+It only shows recent price behavior.
+
+---
+
+### **Vol_Spike (Volume Spike)**
+
+This shows how today’s volume compares to recent average volume.
+
+Examples:
+- `1.0` → normal volume  
+- `2.0` → double the usual volume  
+- `0.5` → half the usual volume  
+
+High volume during a price fall can indicate panic selling.
+
+---
+
+### **Action**
+
+This is a **technical label**, not a recommendation.
+
+Possible labels:
+
+- **OVERSOLD**  
+- **CONTRA BUY**  
+- **BUY**  
+- **BUILD**  
+- **WAIT**
+
+These labels describe how indicators align, not what you should trade.
+
+---
+
+## OVERSOLD (Highest Priority)
+
+A stock is marked **OVERSOLD** when:
+
+- RSI is very low  
+- Volume is unusually high  
+- Price is below 50-day average  
+- MACD momentum is improving  
+
+This may indicate selling pressure is reducing.  
+It does NOT guarantee a price increase.
+
+---
+
+## CONTRA BUY
+
+Conditions:
+- Price is below both 50-DMA and 200-DMA  
+- RSI is low  
+
+Meaning:
+- Stock is in a downtrend
+- Momentum is weak
+- Could bounce temporarily
+
+This is a **high-risk technical pattern**.
+
+---
+
+## BUY
+
+Conditions:
+- Price is above 200-DMA  
+- RSI is low  
+
+Meaning:
+- Stock is in a long-term uptrend
+- Recently corrected
+
+---
+
+## BUILD
+
+Conditions:
+- Price is above 50-DMA and 200-DMA  
+
+Meaning:
+- Stock is in a stable uptrend
+
+---
+
+## WAIT
+
+Meaning:
+- No clear technical pattern
+- Indicators do not align
 
 ---
 
 ## Understanding Moving Averages (DMA)
 
-**What are they?**
-- A "smoothed out" average of stock prices over a specific number of days
-- **50-DMA** = Average price over the last 50 days
-- **200-DMA** = Average price over the last 200 days (about 1 year)
+- **50-DMA** → short-term trend  
+- **200-DMA** → long-term trend  
 
-**Why do we use them?**
-- To understand the **overall trend** (ignoring daily noise)
-- If price > 200-DMA → Stock is in uptrend (generally good)
-- If price < 200-DMA → Stock is in downtrend (more risk)
-
-**Simple analogy:**
-Think of it like a river:
-- **Price** = Daily water level (changes every day, can be high or low)
-- **50-DMA** = Water flow trend for the last 2 months
-- **200-DMA** = Water flow trend for the last year
-- A wise fisherman looks at both the daily water level AND the yearly trend before deciding
+Interpretation:
+- Price above 200-DMA → long-term uptrend  
+- Price below 200-DMA → long-term downtrend  
 
 ---
 
-## Different Screening Strategies
+## Understanding MACD
 
-### **Contra Strategy** (Bet Against the Trend)
-- Best for: Experienced investors who believe in mean reversion
-- Looks for: Oversold stocks (RSI < 40) in downtrends
-- Philosophy: "Buy when blood is on the streets"
+MACD shows momentum changes.
 
-### **Reverse Strategy** (Bet With the Trend)
-- Best for: Conservative investors who follow trends
-- Looks for: Overbought stocks (RSI > 60) in uptrends
-- Philosophy: "Sell winners, avoid falling stocks"
+When MACD histogram rises:
+- Downward momentum is slowing
+- Price may consolidate or bounce
 
 ---
 
-## How the Ranking Works
+## How Ranking Works
 
-The screener ranks stocks from best to worst opportunity:
+Stocks are ranked from **best technical alignment** to weakest.
 
-1. **Rank 0** (Top) = Best signals (CONTRA BUY or SELL)
-2. **Rank 1** = Good signals (BUY or EXIT)
-3. **Rank 2** = Moderate signals (BUILD or SHORT)
-4. **Rank 3** = Wait signals (WAIT or HOLD)
+| Rank | Meaning |
+|------|---------|
+| 1 | Strongest technical alignment |
+| 2 | Moderate alignment |
+| 3 | Weak alignment |
+| 4+ | Very weak alignment |
 
-Within the same rank, stocks are sorted by RSI (more extreme RSI = higher priority)
+Lower rank number = stronger technical pattern  
+Higher rank number = weaker technical pattern  
 
----
-
-## Key Takeaways for Beginners
-
-✅ **Do:**
-- Use this as a screening tool (first filter)
-- Do your own research before buying
-- Consider your risk tolerance
-- Understand that past performance ≠ future results
-
-❌ **Don't:**
-- Buy stocks ONLY because they appear in this list
-- Ignore fundamental analysis (company health, earnings, etc.)
-- Forget that even low RSI doesn't guarantee a stock will go up
-- Invest money you can't afford to lose
+This ranking is based purely on indicator logic.
 
 ---
 
-## Example Workflow
+## Example Usage
 
-1. Run the screener
-2. Look for stocks with "BUY" or "CONTRA BUY" signals
-3. For stocks you're interested in:
-   - Check news and earnings reports
-   - Look at the company's financial health
-   - Understand WHY the stock fell
-4. Make your decision to buy or not
-5. Set stop-loss levels to limit downside risk
+1. Load latest scan  
+2. Observe which stocks appear in top ranks  
+3. Study:
+   - Price chart
+   - Company fundamentals
+   - News
+4. Learn how indicators behave
 
----
-
-## Questions to Ask About Each Stock
-
-Before investing, research and answer:
-- 📰 Why did the stock fall so much?
-- 📊 Is the company still fundamentally strong?
-- 💰 Are earnings growing or declining?
-- 📈 Is there good support at current prices?
-- 🔮 What's the analyst consensus?
+Do NOT treat the output as trade advice.
 
 ---
 
-## Disclaimer
+## What This App Does NOT Do
 
-This tool provides **technical analysis signals only**. It does NOT:
-- Provide financial advice
+This app does NOT:
+- Predict future prices
+- Consider company financials
+- Analyze news or events
 - Guarantee profits
-- Consider company fundamentals
-- Account for news, earnings surprises, or market events
-
-**Always consult a financial advisor before investing significant money.**
+- Replace professional advice
 
 ---
 
-## Need Help Understanding a Stock?
+## Educational Purpose Summary
 
-- Google the stock name + "stock analysis"
-- Check websites like: Moneycontrol, TradingView, NSE website
-- Watch beginner stock market tutorials on YouTube
-- Read books like "The Intelligent Investor" for long-term investing principles
+This project is meant to help users learn:
 
+- How technical indicators are calculated
+- How screening logic is written in code
+- How ranking systems can be built
+- How market data can be visualized
+
+It is a:
+✔ Learning tool  
+✔ Coding project  
+✔ Technical analysis demo  
+
+It is NOT:
+❌ A trading system  
+❌ A financial advisor  
+❌ A profit machine  
+
+---
+
+## Responsibility
+
+All financial decisions carry risk.
+
+By using this app, you agree that:
+- You understand it is for educational use only
+- You will not rely on it for real trading decisions
+- You take full responsibility for any actions you take
+
+---
+
+## Need Help Learning?
+
+You can:
+- Read about RSI, MACD, Moving Averages
+- Study charts on TradingView
+- Learn Python-based market analysis
+- Explore NSE historical data
+- Read books on market psychology
+
+---
+
+## Final Note
+
+This app shows **how screening works**, not **what to trade**.
+
+Use it to:
+✔ Learn  
+✔ Experiment  
+✔ Understand markets  
+
+Not to:
+❌ Trade blindly  
+❌ Risk real money  
+❌ Assume accuracy  
+
+Always verify with multiple sources and professional advice.

@@ -1,69 +1,134 @@
 import streamlit as st
-from screener import run_screener
+import pandas as pd
+import yfinance as yf
+from datetime import date, datetime
+import os
 
-st.set_page_config(page_title="Market Screener", layout="wide")
+st.set_page_config(page_title="📊 Indian Market Screener", layout="wide")
 
-# Initialize session state
+# ================= SESSION STATE =================
 if "show_help" not in st.session_state:
     st.session_state.show_help = False
 
-# Help page
+if "df" not in st.session_state:
+    st.session_state.df = None
+
+if "chart_symbol" not in st.session_state:
+    st.session_state.chart_symbol = None
+
+if "scan_info" not in st.session_state:
+    st.session_state.scan_info = None
+
+# ================= CACHED CHART DATA =================
+@st.cache_data(show_spinner=False)
+def fetch_chart_data(ticker, cache_day):
+    return yf.download(ticker, period="1y", interval="1d", progress=False)
+
+# ================= HELP PAGE =================
 if st.session_state.show_help:
     col1, col2 = st.columns([0.95, 0.05])
-    
     with col2:
-        if st.button("✕", key="close_help"):
+        if st.button("✕"):
             st.session_state.show_help = False
             st.rerun()
-    
-    # Read and display README
+
     try:
         with open("README.md", "r", encoding="utf-8") as f:
-            readme_content = f.read()
-        st.markdown(readme_content)
-        
-        # Close button at bottom
-        st.divider()
-        col1, col2, col3 = st.columns([0.4, 0.2, 0.4])
-        with col2:
-            if st.button("✕ Close", key="close_help_bottom", width='stretch'):
-                st.session_state.show_help = False
-                st.rerun()
+            st.markdown(f.read())
     except FileNotFoundError:
         st.error("README.md not found!")
+
+    st.stop()
+
+# ================= MAIN PAGE =================
+col1, col2 = st.columns([0.95, 0.05])
+with col1:
+    st.title("📈 Indian Market Screener")
+with col2:
+    if st.button("❓"):
+        st.session_state.show_help = True
+        st.rerun()
+
+with st.sidebar:
+    st.header("⚙️ Controls")
+
+    universe = st.selectbox("Universe", ["nifty50", "niftynext50"])
+
+    if st.button("📂 Load Latest Scan"):
+        if universe == "nifty50":
+            filename = "latest_scan_nifty50.csv"
+        else:
+            filename = "latest_scan_niftynext50.csv"
+
+        if os.path.exists(filename):
+            st.session_state.df = pd.read_csv(filename)
+
+            # get file modified time as scan date
+            ts = os.path.getmtime(filename)
+            scan_time = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %I:%M %p")
+
+            st.session_state.scan_info = f"Data as of: {scan_time}"
+            st.success("Loaded")
+        else:
+            st.error("Scan file not found. Please run nightly_scan.py first.")
+
+if st.session_state.df is None:
+    st.info("Select universe and click **Load Latest Scan**.")
+    st.stop()
+
+df = st.session_state.df
+
+if df.empty:
+    st.warning("Scan file is empty.")
+    st.stop()
+
+# -------- Results --------
+st.subheader("📋 Screener Results")
+
+if st.session_state.scan_info:
+    st.caption(f"📅 {st.session_state.scan_info}")
+
+st.info("ℹ️ **Rank 1 = Best opportunity. Higher Rank = weaker signal.**")
+st.dataframe(df, width="stretch")
+
+# -------- Chart Viewer --------
+st.subheader("📈 Chart Viewer")
+
+symbols = df["Ticker"].tolist()
+
+if st.session_state.chart_symbol not in symbols:
+    st.session_state.chart_symbol = symbols[0]
+
+chart_symbol = st.selectbox(
+    "Select stock",
+    symbols,
+    index=symbols.index(st.session_state.chart_symbol)
+)
+
+st.session_state.chart_symbol = chart_symbol
+
+hist = fetch_chart_data(chart_symbol, cache_day=date.today())
+
+if hist is None or hist.empty:
+    st.error(f"No historical data for {chart_symbol}")
+    st.stop()
+
+# ===== Handle MultiIndex columns =====
+if isinstance(hist.columns, pd.MultiIndex):
+    if "Close" in hist.columns.get_level_values(0):
+        close_series = hist["Close"].iloc[:, 0]
+    else:
+        st.error("No Close column found.")
+        st.stop()
 else:
-    # Main page
-    col1, col2 = st.columns([0.95, 0.05])
-    
-    with col1:
-        st.title("📈 Indian Market Screener")
-    
-    with col2:
-        if st.button("❓", key="help_btn", help="Read Help"):
-            st.session_state.show_help = True
-            st.rerun()
+    if "Close" not in hist.columns:
+        st.error("No Close column found.")
+        st.stop()
+    close_series = hist["Close"]
 
-    strategy = st.selectbox("Select Strategy", ["contra", "reverse"])
-    universe = st.selectbox("Select Universe", ["nifty50", "niftynext50", "custom"])
+close_series = pd.to_numeric(close_series, errors="coerce").dropna()
 
-    custom_tickers = ""
-    if universe == "custom":
-        custom_tickers = st.text_input(
-            "Enter tickers (comma separated, without .NS)",
-            "RELIANCE,TCS,INFY"
-        )
+plot_df = close_series.to_frame(name="Close").reset_index()
+plot_df["Date"] = pd.to_datetime(plot_df["Date"])
 
-    if st.button("Run Screener"):
-        with st.spinner("Fetching market data..."):
-            df = run_screener(strategy, universe, custom_tickers)
-
-        st.success("Done!")
-
-        st.dataframe(df, width='stretch')
-
-        st.download_button(
-            "Download CSV",
-            df.to_csv(index=False),
-            file_name="screener_output.csv",
-            mime="text/csv"
-        )
+st.line_chart(plot_df.set_index("Date")["Close"])
