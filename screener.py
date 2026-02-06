@@ -2,9 +2,6 @@ import pandas as pd
 import yfinance as yf
 import requests
 from io import StringIO
-import streamlit as st
-from datetime import date
-import numpy as np
 
 RSI_PERIOD = 14
 RSI_ATTRACTIVE = 40
@@ -13,6 +10,7 @@ LOOKBACK_PERIOD = "1y"
 
 OVERSOLD_RSI = 30
 VOLUME_SPIKE_MULT = 1.5
+MAX_DAILY_MOVE = 0.2
 
 # ---------------- INDICATORS ----------------
 
@@ -30,6 +28,84 @@ def compute_macd(series, fast=12, slow=26, signal=9):
     signal_line = macd.ewm(span=signal, adjust=False).mean()
     hist = macd - signal_line
     return macd, signal_line, hist
+
+# ---------------- DATA FETCH ----------------
+
+def extract_series(raw):
+    if isinstance(raw.columns, pd.MultiIndex):
+        cols = raw.columns.get_level_values(0)
+        if "Close" not in cols or "Volume" not in cols or "Adj Close" not in cols:
+            return None, None, None, None
+        close_series = raw["Close"].iloc[:, 0]
+        adj_close_series = raw["Adj Close"].iloc[:, 0]
+        volume_series = raw["Volume"].iloc[:, 0]
+        split_series = raw["Stock Splits"].iloc[:, 0] if "Stock Splits" in cols else None
+    else:
+        if "Close" not in raw.columns or "Volume" not in raw.columns or "Adj Close" not in raw.columns:
+            return None, None, None, None
+        close_series = raw["Close"]
+        adj_close_series = raw["Adj Close"]
+        volume_series = raw["Volume"]
+        split_series = raw["Stock Splits"] if "Stock Splits" in raw.columns else None
+
+    return close_series, adj_close_series, volume_series, split_series
+
+def build_price_df(close_series, adj_close_series, volume_series, split_series):
+    df = pd.DataFrame({
+        "Close": close_series,
+        "Adj Close": adj_close_series,
+        "Volume": volume_series
+    })
+
+    if split_series is not None:
+        df["Split"] = split_series
+    else:
+        df["Split"] = 0.0
+
+    return df.dropna()
+
+def download_price_df(ticker, retries=1):
+    for attempt in range(retries + 1):
+        try:
+            raw = yf.download(
+                ticker,
+                period=LOOKBACK_PERIOD,
+                interval="1d",
+                actions=True,
+                auto_adjust=False,
+                progress=False
+            )
+        except Exception:
+            continue
+
+        if raw is None or raw.empty:
+            continue
+
+        close_series, adj_close_series, volume_series, split_series = extract_series(raw)
+        if close_series is None:
+            continue
+
+        df = build_price_df(close_series, adj_close_series, volume_series, split_series)
+        if len(df) < 2:
+            continue
+
+        close = float(df["Close"].iloc[-1])
+        prev_close = float(df["Close"].iloc[-2])
+        adj_close = float(df["Adj Close"].iloc[-1])
+        prev_adj_close = float(df["Adj Close"].iloc[-2])
+        last_split = float(df["Split"].iloc[-1]) if "Split" in df else 0.0
+
+        change_ratio = (
+            abs(adj_close - prev_adj_close) / prev_adj_close
+            if prev_adj_close > 0 else 0.0
+        )
+
+        if change_ratio > MAX_DAILY_MOVE and last_split == 0.0 and attempt < retries:
+            continue
+
+        return df
+
+    return None
 
 # ---------------- STRATEGIES ----------------
 
@@ -55,8 +131,7 @@ def reverse_strategy(close, rsi, dma50, dma200):
 
 # ---------------- UNIVERSE ----------------
 
-@st.cache_data(show_spinner=False)
-def fetch_nse_universe(which, cache_day):
+def fetch_nse_universe(which):
     if which == "nifty50":
         url = "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
     elif which == "niftynext50":
@@ -78,11 +153,11 @@ def fetch_nse_universe(which, cache_day):
 
     return symbols
 
-def parse_universe(universe, custom_tickers, cache_day):
+def parse_universe(universe, custom_tickers):
     if universe == "nifty50":
-        return fetch_nse_universe("nifty50", cache_day)
+        return fetch_nse_universe("nifty50")
     if universe == "niftynext50":
-        return fetch_nse_universe("niftynext50", cache_day)
+        return fetch_nse_universe("niftynext50")
     if universe == "custom":
         tickers = {}
         for t in custom_tickers.split(","):
@@ -94,9 +169,8 @@ def parse_universe(universe, custom_tickers, cache_day):
 
 # ---------------- MAIN SCREENER ----------------
 
-@st.cache_data(show_spinner=False)
-def run_screener(strategy, universe, custom_tickers, cache_day):
-    tickers = parse_universe(universe, custom_tickers, cache_day)
+def run_screener(strategy, universe, custom_tickers, prev_close_map=None):
+    tickers = parse_universe(universe, custom_tickers)
 
     if strategy == "contra":
         strategy_func = contra_strategy
@@ -108,32 +182,23 @@ def run_screener(strategy, universe, custom_tickers, cache_day):
     results = []
 
     for name, ticker in tickers.items():
-        try:
-            raw = yf.download(ticker, period=LOOKBACK_PERIOD, progress=False)
-        except Exception:
+        df = download_price_df(ticker, retries=1)
+        if df is None:
             continue
 
-        if raw is None or raw.empty:
+        if len(df) < 200:
             continue
 
-        if isinstance(raw.columns, pd.MultiIndex):
-            if "Close" not in raw.columns.get_level_values(0):
-                continue
-            close_series = raw["Close"].iloc[:, 0]
-            volume_series = raw["Volume"].iloc[:, 0]
-        else:
-            if "Close" not in raw.columns or "Volume" not in raw.columns:
-                continue
-            close_series = raw["Close"]
-            volume_series = raw["Volume"]
-
-        df = pd.DataFrame({
-            "Close": close_series,
-            "Volume": volume_series
-        }).dropna()
-
-        if len(df) < 50:
-            continue
+        if prev_close_map and ticker in prev_close_map:
+            prev_close_csv = float(prev_close_map[ticker])
+            last_split = float(df["Split"].iloc[-1]) if "Split" in df.columns else 0.0
+            if prev_close_csv > 0:
+                change_ratio_csv = abs(float(df["Adj Close"].iloc[-1]) - prev_close_csv) / prev_close_csv
+                if change_ratio_csv > MAX_DAILY_MOVE and last_split == 0.0:
+                    df_retry = download_price_df(ticker, retries=0)
+                    if df_retry is None:
+                        continue
+                    df = df_retry
 
         df["RSI"] = compute_rsi(df["Close"])
         df["50DMA"] = df["Close"].rolling(50).mean()
@@ -149,6 +214,7 @@ def run_screener(strategy, universe, custom_tickers, cache_day):
         prev = df.iloc[-2]
 
         close = float(latest["Close"])
+        adj_close = float(latest["Adj Close"])
         rsi = float(latest["RSI"])
         dma50 = float(latest["50DMA"])
         dma200 = float(latest["200DMA"])
@@ -173,6 +239,7 @@ def run_screener(strategy, universe, custom_tickers, cache_day):
         results.append([
             name, ticker,
             round(close, 2),
+            round(adj_close, 2),
             round(rsi, 2),
             round(volume_ratio, 2),
             action,
@@ -180,7 +247,7 @@ def run_screener(strategy, universe, custom_tickers, cache_day):
         ])
 
     df_out = pd.DataFrame(results, columns=[
-        "Stock", "Ticker", "Close", "RSI", "Vol_Spike", "Action", "1Y_Return_%"
+        "Stock", "Ticker", "Close", "Adj_Close", "RSI", "Vol_Spike", "Action", "1Y_Return_%"
     ])
 
     df_out["Rank"] = df_out["Action"].apply(

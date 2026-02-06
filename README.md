@@ -1,6 +1,6 @@
-# 📊 Stock Screener – User Guide for Beginners
+# Stock Screener - User Guide for Beginners
 
-## ⚠️ Important Disclaimer (Please Read First)
+## Important Disclaimer (Please Read First)
 
 This application is created **ONLY for educational and learning purposes**.
 
@@ -9,10 +9,10 @@ It:
 - Helps users understand market data and screening logic
 - Is meant for **study, experimentation, and technical analysis learning**
 
-🚫 **This app does NOT provide investment advice**  
-🚫 **This app does NOT recommend buying or selling any stock**  
-🚫 **This app is NOT a trading system**  
-🚫 **This app is NOT a financial advisory tool**
+[NOT] **This app does NOT provide investment advice**  
+[NOT] **This app does NOT recommend buying or selling any stock**  
+[NOT] **This app is NOT a trading system**  
+[NOT] **This app is NOT a financial advisory tool**
 
 Any output shown in this app:
 - Should NOT be considered as a trading signal  
@@ -27,7 +27,7 @@ You are solely responsible for any financial decisions you make.
 
 ## What is this App?
 
-This is a **Stock Screener** — a tool that automatically analyzes stocks and highlights them based on **technical indicators** such as:
+This is a **Stock Screener** - a tool that automatically analyzes stocks and highlights them based on **technical indicators** such as:
 
 - RSI (Relative Strength Index)
 - Moving Averages (50-DMA, 200-DMA)
@@ -85,9 +85,9 @@ When you load a scan, you will see a table with these columns:
 RSI measures how fast a stock has moved up or down recently.
 
 **RSI Zones:**
-- **RSI < 30** → Oversold (price fell rapidly)
-- **RSI 30–60** → Neutral
-- **RSI > 70** → Overbought (price rose rapidly)
+- **RSI < 30** -> Oversold (price fell rapidly)
+- **RSI 30-60** -> Neutral
+- **RSI > 70** -> Overbought (price rose rapidly)
 
 Low RSI does NOT mean the stock must go up.  
 It only shows recent price behavior.
@@ -96,12 +96,12 @@ It only shows recent price behavior.
 
 ### **Vol_Spike (Volume Spike)**
 
-This shows how today’s volume compares to recent average volume.
+This shows how today's volume compares to recent average volume.
 
 Examples:
-- `1.0` → normal volume  
-- `2.0` → double the usual volume  
-- `0.5` → half the usual volume  
+- `1.0` -> normal volume  
+- `2.0` -> double the usual volume  
+- `0.5` -> half the usual volume  
 
 High volume during a price fall can indicate panic selling.
 
@@ -184,12 +184,12 @@ Meaning:
 
 ## Understanding Moving Averages (DMA)
 
-- **50-DMA** → short-term trend  
-- **200-DMA** → long-term trend  
+- **50-DMA** -> short-term trend  
+- **200-DMA** -> long-term trend  
 
 Interpretation:
-- Price above 200-DMA → long-term uptrend  
-- Price below 200-DMA → long-term downtrend  
+- Price above 200-DMA -> long-term uptrend  
+- Price below 200-DMA -> long-term downtrend  
 
 ---
 
@@ -256,14 +256,14 @@ This project is meant to help users learn:
 - How market data can be visualized
 
 It is a:
-✔ Learning tool  
-✔ Coding project  
-✔ Technical analysis demo  
+[OK] Learning tool  
+[OK] Coding project  
+[OK] Technical analysis demo  
 
 It is NOT:
-❌ A trading system  
-❌ A financial advisor  
-❌ A profit machine  
+[NO] A trading system  
+[NO] A financial advisor  
+[NO] A profit machine  
 
 ---
 
@@ -294,13 +294,13 @@ You can:
 This app shows **how screening works**, not **what to trade**.
 
 Use it to:
-✔ Learn  
-✔ Experiment  
-✔ Understand markets  
+[OK] Learn  
+[OK] Experiment  
+[OK] Understand markets  
 
 Not to:
-❌ Trade blindly  
-❌ Risk real money  
-❌ Assume accuracy  
+[NO] Trade blindly  
+[NO] Risk real money  
+[NO] Assume accuracy  
 
 Always verify with multiple sources and professional advice.

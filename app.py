@@ -4,7 +4,7 @@ import yfinance as yf
 from datetime import date, datetime
 import os
 
-st.set_page_config(page_title="📊 Indian Market Screener", layout="wide")
+st.set_page_config(page_title="Indian Market Screener", layout="wide")
 
 # ================= SESSION STATE =================
 if "show_help" not in st.session_state:
@@ -26,11 +26,22 @@ def fetch_chart_data(ticker, cache_day):
 
 # ================= HELP PAGE =================
 if st.session_state.show_help:
-    col1, col2 = st.columns([0.95, 0.05])
+    col1, col2, col3 = st.columns([0.85, 0.10, 0.05])
     with col2:
-        if st.button("✕"):
+        st.markdown("<div style='padding-top: 8px; text-align: center;'></div>", unsafe_allow_html=True)
+        if st.button("✕", key="close_help_btn"):
             st.session_state.show_help = False
             st.rerun()
+    
+    # Add red styling for close button
+    st.markdown("""
+        <style>
+        button[key="close_help_btn"] {
+            color: red !important;
+            font-size: 18px !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
     try:
         with open("README.md", "r", encoding="utf-8") as f:
@@ -41,20 +52,31 @@ if st.session_state.show_help:
     st.stop()
 
 # ================= MAIN PAGE =================
-col1, col2 = st.columns([0.95, 0.05])
+col1, col2, col3 = st.columns([0.85, 0.10, 0.05])
 with col1:
-    st.title("📈 Indian Market Screener")
+    st.title("Indian Market Screener")
 with col2:
-    if st.button("❓"):
+    st.markdown("<div style='padding-top: 12px; text-align: center;'></div>", unsafe_allow_html=True)
+    if st.button("❓", key="help_btn"):
         st.session_state.show_help = True
         st.rerun()
 
+# Add red styling for help button
+st.markdown("""
+    <style>
+    button[key="help_btn"] {
+        color: red !important;
+        font-size: 20px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 with st.sidebar:
-    st.header("⚙️ Controls")
+    st.header("Controls")
 
     universe = st.selectbox("Universe", ["nifty50", "niftynext50"])
 
-    if st.button("📂 Load Latest Scan"):
+    if st.button("Load Latest Scan"):
         if universe == "nifty50":
             filename = "latest_scan_nifty50.csv"
         else:
@@ -84,22 +106,23 @@ if df.empty:
 
 # -------- Results --------
 if st.session_state.scan_info:
-    st.info(f"📋 Screener Results as of: {st.session_state.scan_info.replace('Data as of: ', '')}")
+    st.info(f"Screener Results as of: {st.session_state.scan_info.replace('Data as of: ', '')}")
 else:
-    st.info("📋 Screener Results")
+    st.info("Screener Results")
 
 # ================= STOCK FILTER =================
-filter_text = st.text_input("🔍 Filter by Stock name")
+filter_text = st.text_input("Filter by Stock name")
 
 if filter_text:
     df_filtered = df[df["Stock"].str.contains(filter_text, case=False, na=False)]
 else:
     df_filtered = df
 
-st.dataframe(df_filtered, width="stretch")
+df_display = df_filtered.drop(columns=["Adj_Close"], errors="ignore")
+st.dataframe(df_display, width="stretch", hide_index=True)
 
 # -------- Chart Viewer --------
-st.subheader("📈 Chart Viewer")
+st.subheader("Chart Viewer")
 
 symbols = df_filtered["Ticker"].tolist()
 
