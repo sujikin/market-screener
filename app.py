@@ -3,6 +3,7 @@ import pandas as pd
 import yfinance as yf
 from datetime import date, datetime
 import os
+from screener import load_price_df_from_cache, run_screener, parse_universe
 
 st.set_page_config(page_title="Indian Market Screener", layout="wide")
 
@@ -19,9 +20,24 @@ if "chart_symbol" not in st.session_state:
 if "scan_info" not in st.session_state:
     st.session_state.scan_info = None
 
+if "universe" not in st.session_state:
+    st.session_state.universe = "nifty50"
+
+if "custom_tickers" not in st.session_state:
+    st.session_state.custom_tickers = ""
+
+if "is_custom_universe" not in st.session_state:
+    st.session_state.is_custom_universe = False
+
 # ================= CACHED CHART DATA =================
 @st.cache_data(show_spinner=False)
-def fetch_chart_data(ticker, cache_day):
+def fetch_chart_data(ticker, universe, cache_day):
+    # Try to load from cache first
+    cached_data = load_price_df_from_cache(ticker, universe)
+    if cached_data is not None and not cached_data.empty:
+        return cached_data
+    
+    # Fall back to yfinance if cache miss
     return yf.download(ticker, period="1y", interval="1d", progress=False)
 
 # ================= HELP PAGE =================
@@ -74,28 +90,77 @@ st.markdown("""
 with st.sidebar:
     st.header("Controls")
 
-    universe = st.selectbox("Universe", ["nifty50", "niftynext50"])
+    universe = st.selectbox("Universe", ["nifty50", "niftynext50", "nifty500", "custom"], 
+                           index=["nifty50", "niftynext50", "nifty500", "custom"].index(st.session_state.universe))
+    st.session_state.universe = universe
 
-    if st.button("Load Latest Scan"):
-        if universe == "nifty50":
-            filename = "latest_scan_nifty50.csv"
-        else:
-            filename = "latest_scan_niftynext50.csv"
+    # Show custom ticker input only when custom universe is selected
+    if universe == "custom":
+        st.session_state.is_custom_universe = True
+        custom_tickers = st.text_area(
+            "Custom Tickers",
+            value=st.session_state.custom_tickers,
+            height=80,
+            placeholder="Enter ticker symbols (one per line or comma-separated).\nExample: RELIANCE.NS\nTCS.NS\nINFY.NS",
+            help="Enter NSE ticker symbols"
+        )
+        st.session_state.custom_tickers = custom_tickers
 
-        if os.path.exists(filename):
-            st.session_state.df = pd.read_csv(filename)
+        if st.button("Run Screener", type="primary"):
+            if not custom_tickers.strip():
+                st.error("Please enter at least one ticker symbol")
+            else:
+                with st.spinner("Running screener..."):
+                    try:
+                        # Convert multiline/comma-separated input to comma-separated string
+                        tickers_input = custom_tickers.replace('\n', ',')
+                        
+                        # Run the screener
+                        df_result = run_screener(
+                            strategy="contra",
+                            universe="custom",
+                            custom_tickers=tickers_input,
+                            max_workers=10,
+                            batch_size=10
+                        )
+                        
+                        if df_result.empty:
+                            st.error("No results found. Please check your ticker symbols and try again.")
+                        else:
+                            st.session_state.df = df_result
+                            st.session_state.chart_symbol = None
+                            st.session_state.scan_info = f"Custom scan run at: {datetime.now().strftime('%Y-%m-%d %I:%M %p')}"
+                            st.session_state.is_custom_universe = True
+                            st.success(f"Screener completed! Found {len(df_result)} stocks matching criteria.")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Error running screener: {str(e)}")
+    else:
+        st.session_state.is_custom_universe = False
+        if st.button("Load Latest Scan", type="primary"):
+            if universe == "nifty50":
+                filename = "latest_scan_nifty50.csv"
+            elif universe == "niftynext50":
+                filename = "latest_scan_niftynext50.csv"
+            else:
+                filename = "latest_scan_nifty500.csv"
 
-            # get file modified time as scan date
-            ts = os.path.getmtime(filename)
-            scan_time = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %I:%M %p")
+            if os.path.exists(filename):
+                st.session_state.df = pd.read_csv(filename)
+                st.session_state.chart_symbol = None  # Reset chart symbol for new data
 
-            st.session_state.scan_info = f"Data as of: {scan_time}"
-            st.success("Loaded")
-        else:
-            st.error("Scan file not found. Please run nightly_scan.py first.")
+                # get file modified time as scan date
+                ts = os.path.getmtime(filename)
+                scan_time = datetime.fromtimestamp(ts).strftime("%Y-%m-%d %I:%M %p")
+
+                st.session_state.scan_info = f"Data as of: {scan_time}"
+                st.success("Loaded")
+                st.rerun()  # Force rerun to properly initialize chart
+            else:
+                st.error("Scan file not found. Please run nightly_scan.py first.")
 
 if st.session_state.df is None:
-    st.info("Select universe and click **Load Latest Scan**.")
+    st.info("Select a universe and click **Load Latest Scan** (for Nifty indices) or **Run Screener** (for custom tickers).")
     st.stop()
 
 df = st.session_state.df
@@ -133,15 +198,20 @@ if not symbols:
 if st.session_state.chart_symbol not in symbols:
     st.session_state.chart_symbol = symbols[0]
 
+def on_chart_symbol_change():
+    st.session_state.chart_symbol = st.session_state.chart_selector
+
 chart_symbol = st.selectbox(
     "Select stock",
     symbols,
-    index=symbols.index(st.session_state.chart_symbol)
+    index=symbols.index(st.session_state.chart_symbol),
+    key="chart_selector",
+    on_change=on_chart_symbol_change
 )
 
 st.session_state.chart_symbol = chart_symbol
 
-hist = fetch_chart_data(chart_symbol, cache_day=date.today())
+hist = fetch_chart_data(chart_symbol, st.session_state.universe, cache_day=date.today())
 
 if hist is None or hist.empty:
     st.error(f"No historical data for {chart_symbol}")
