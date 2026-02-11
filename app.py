@@ -31,7 +31,7 @@ if "is_custom_universe" not in st.session_state:
 
 # ================= CACHED CHART DATA =================
 @st.cache_data(show_spinner=False)
-def fetch_chart_data(ticker, universe, cache_day):
+def fetch_chart_data(ticker, universe):
     # Try to load from cache first
     cached_data = load_price_df_from_cache(ticker, universe)
     if cached_data is not None and not cached_data.empty:
@@ -90,8 +90,8 @@ st.markdown("""
 with st.sidebar:
     st.header("Controls")
 
-    universe = st.selectbox("Universe", ["nifty50", "niftynext50", "nifty500", "custom"], 
-                           index=["nifty50", "niftynext50", "nifty500", "custom"].index(st.session_state.universe))
+    universe = st.selectbox("Universe", ["nifty50", "niftynext50", "custom"], 
+                           index=["nifty50", "niftynext50", "custom"].index(st.session_state.universe) if st.session_state.universe in ["nifty50", "niftynext50", "custom"] else 0)
     st.session_state.universe = universe
 
     # Show custom ticker input only when custom universe is selected
@@ -132,7 +132,6 @@ with st.sidebar:
                             st.session_state.scan_info = f"Custom scan run at: {datetime.now().strftime('%Y-%m-%d %I:%M %p')}"
                             st.session_state.is_custom_universe = True
                             st.success(f"Screener completed! Found {len(df_result)} stocks matching criteria.")
-                            st.rerun()
                     except Exception as e:
                         st.error(f"Error running screener: {str(e)}")
     else:
@@ -143,7 +142,8 @@ with st.sidebar:
             elif universe == "niftynext50":
                 filename = "latest_scan_niftynext50.csv"
             else:
-                filename = "latest_scan_nifty500.csv"
+                st.error("Invalid universe selected")
+                st.stop()
 
             if os.path.exists(filename):
                 st.session_state.df = pd.read_csv(filename)
@@ -155,7 +155,6 @@ with st.sidebar:
 
                 st.session_state.scan_info = f"Data as of: {scan_time}"
                 st.success("Loaded")
-                st.rerun()  # Force rerun to properly initialize chart
             else:
                 st.error("Scan file not found. Please run nightly_scan.py first.")
 
@@ -211,7 +210,7 @@ chart_symbol = st.selectbox(
 
 st.session_state.chart_symbol = chart_symbol
 
-hist = fetch_chart_data(chart_symbol, st.session_state.universe, cache_day=date.today())
+hist = fetch_chart_data(chart_symbol, st.session_state.universe)
 
 if hist is None or hist.empty:
     st.error(f"No historical data for {chart_symbol}")

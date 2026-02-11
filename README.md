@@ -80,6 +80,17 @@ When you load a scan, you will see a table with these columns:
 
 ---
 
+### **Rank**
+- The technical rank (1 is best, higher is weaker)
+- Sorts stocks by best technical alignment
+
+---
+
+### **1Y_Return_%**
+- The percentage return over the last 1 year
+
+---
+
 ### **RSI (Relative Strength Index)**
 
 RSI measures how fast a stock has moved up or down recently.
@@ -113,11 +124,14 @@ This is a **technical label**, not a recommendation.
 
 Possible labels:
 
-- **OVERSOLD**  
-- **CONTRA BUY**  
-- **BUY**  
-- **BUILD**  
-- **WAIT**
+- **OVERSOLD**
+- **CONTRA BUY**
+- **BUY**
+- **BUILD**
+- **SELL**
+- **EXIT**
+- **SHORT**
+- **HOLD**
 
 These labels describe how indicators align, not what you should trade.
 
@@ -140,15 +154,14 @@ It does NOT guarantee a price increase.
 ## CONTRA BUY
 
 Conditions:
-- Price is below both 50-DMA and 200-DMA  
-- RSI is low  
+- Price is below both 50-DMA and 200-DMA (Downtrend)
+- RSI is low (<40)
+- **MACD Histogram is improving** (Momentum is turning up)
 
 Meaning:
-- Stock is in a downtrend
-- Momentum is weak
-- Could bounce temporarily
-
-This is a **high-risk technical pattern**.
+- Stock is in a downtrend but selling pressure is fading
+- "Catching the turn, not the knife"
+- Still a **high-risk technical pattern**, but safer with momentum check
 
 ---
 
@@ -156,11 +169,12 @@ This is a **high-risk technical pattern**.
 
 Conditions:
 - Price is above 200-DMA  
-- RSI is low  
+- RSI is low (<40)
+- **MACD Histogram is improving**
 
 Meaning:
 - Stock is in a long-term uptrend
-- Recently corrected
+- Recently corrected, but starting to recover
 
 ---
 
@@ -168,13 +182,51 @@ Meaning:
 
 Conditions:
 - Price is above 50-DMA and 200-DMA  
+- **MACD Histogram is improving**
 
 Meaning:
-- Stock is in a stable uptrend
+- Stock is in a stable uptrend with rising momentum
 
 ---
 
-## WAIT
+## SELL
+
+Conditions:
+- Price is above 50-DMA and 200-DMA (Uptrend)
+- RSI is Overbought (>60)
+- **MACD Histogram is weakening** (Momentum slowing down)
+
+Meaning:
+- Stock has run up fast and is losing steam
+- Potential profit booking zone
+
+---
+
+## EXIT
+
+Conditions:
+- Price is below 200-DMA (Downtrend)
+- RSI is rising (>40)
+- **MACD Histogram is weakening**
+
+Meaning:
+- Exit on bounce that is now failing
+- Downtrend likely to continue
+
+---
+
+## SHORT
+
+Conditions:
+- Price is below 50-DMA and 200-DMA (Strong Downtrend)
+- **MACD Histogram is weakening**
+
+Meaning:
+- Strong downward momentum accelerating
+
+---
+
+## HOLD
 
 Meaning:
 - No clear technical pattern
@@ -263,7 +315,17 @@ It is a:
 It is NOT:
 [NO] A trading system  
 [NO] A financial advisor  
-[NO] A profit machine  
+[NO] A profit machine
+
+---
+
+## Tech Highlights (Under the Hood)
+
+For the tech-savvy, this app includes:
+- **Fast Caching**: Optimized O(1) cache reads/writes (no re-reading large CSVs).
+- **Robustness**: Auto-retries on failed downloads, stale cache expiry (5 days), and input validation.
+- **Automation**: Fully automated GitHub Actions workflow scans Nifty 50 and Next 50 nightly.
+- **Safe**: Prevents data corruption using immutable DataFrame copies.  
 
 ---
 

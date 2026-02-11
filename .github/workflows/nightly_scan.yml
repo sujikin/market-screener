@@ -2,7 +2,7 @@ name: Nightly Market Scan
 
 on:
   schedule:
-    - cron: "0 19 * * *"   # runs daily at 00:30 IST
+    - cron: "0 19 * * *"   # runs daily at 19:00 UTC (00:30 IST during standard time)
   workflow_dispatch:
 
 jobs:

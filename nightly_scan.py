@@ -50,20 +50,6 @@ def main():
     print(f"Saved latest_scan_niftynext50.csv ({len(df_niftynext50)} stocks)")
     print("Price cache updated at price_cache_niftynext50.csv")
 
-    # -------- NIFTY500 --------
-    print("Processing NIFTY500...")
-    prev_close_nifty500 = load_prev_close_map("latest_scan_nifty500.csv")
-    df_nifty500 = run_screener(
-        strategy="contra",
-        universe="nifty500",
-        custom_tickers="",
-        prev_close_map=prev_close_nifty500
-    )
-
-    df_nifty500.to_csv("latest_scan_nifty500.csv", index=False)
-    print(f"Saved latest_scan_nifty500.csv ({len(df_nifty500)} stocks)")
-    print("Price cache updated at price_cache_nifty500.csv")
-
     print("All scans completed.")
 
 
