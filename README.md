@@ -40,6 +40,18 @@ Think of it as:
 
 ---
 
+## Chart Viewer (Candlestick)
+
+The app includes a **Chart Viewer** below the results table:
+
+- Select any stock from the filtered list
+- The app shows a **1-year candlestick chart** (Open, High, Low, Close) when OHLC data is available
+- If OHLC data is not available, it falls back to a **line chart** using Close prices
+
+This chart is for visual learning and pattern study only.
+
+---
+
 ## Data Update Frequency
 
 This app uses **pre-generated daily scan results** to ensure fast performance.
@@ -278,7 +290,7 @@ This ranking is based purely on indicator logic.
 1. Load latest scan  
 2. Observe which stocks appear in top ranks  
 3. Study:
-   - Price chart
+   - Candlestick chart (or line chart fallback)
    - Company fundamentals
    - News
 4. Learn how indicators behave
