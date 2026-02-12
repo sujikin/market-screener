@@ -3,6 +3,7 @@ import pandas as pd
 import yfinance as yf
 from datetime import date, datetime
 import os
+import plotly.graph_objects as go
 from screener import load_price_df_from_cache, run_screener, parse_universe
 
 st.set_page_config(page_title="Indian Market Screener", layout="wide")
@@ -216,22 +217,73 @@ if hist is None or hist.empty:
     st.error(f"No historical data for {chart_symbol}")
     st.stop()
 
-# ===== Handle MultiIndex columns =====
+# ===== Prepare OHLC data for candlestick chart =====
+# Check if we have OHLC data in the dataframe
+has_ohlc = all(col in hist.columns for col in ["Open", "High", "Low", "Close"]) if not isinstance(hist.columns, pd.MultiIndex) else False
+
 if isinstance(hist.columns, pd.MultiIndex):
-    if "Close" in hist.columns.get_level_values(0):
+    # Handle MultiIndex columns from yfinance batch mode
+    cols = hist.columns.get_level_values(0)
+    if all(col in cols for col in ["Open", "High", "Low", "Close"]):
+        open_series = hist["Open"].iloc[:, 0]
+        high_series = hist["High"].iloc[:, 0]
+        low_series = hist["Low"].iloc[:, 0]
+        close_series = hist["Close"].iloc[:, 0]
+        has_ohlc = True
+    elif "Close" in cols:
         close_series = hist["Close"].iloc[:, 0]
     else:
         st.error("No Close column found.")
         st.stop()
 else:
-    if "Close" not in hist.columns:
-        st.error("No Close column found.")
-        st.stop()
-    close_series = hist["Close"]
+    # Handle flat columns from cache or single ticker
+    if has_ohlc:
+        open_series = hist["Open"]
+        high_series = hist["High"]
+        low_series = hist["Low"]
+        close_series = hist["Close"]
+    else:
+        if "Close" not in hist.columns:
+            st.error("No Close column found.")
+            st.stop()
+        close_series = hist["Close"]
 
-close_series = pd.to_numeric(close_series, errors="coerce").dropna()
-
-plot_df = close_series.to_frame(name="Close").reset_index()
-plot_df["Date"] = pd.to_datetime(plot_df["Date"])
-
-st.line_chart(plot_df.set_index("Date")["Close"])
+# Create candlestick chart if we have OHLC data, otherwise line chart
+if has_ohlc:
+    # Prepare data for candlestick chart
+    df_chart = pd.DataFrame({
+        "Date": hist.index if not isinstance(hist.index, pd.DatetimeIndex) else hist.index,
+        "Open": open_series.values,
+        "High": high_series.values,
+        "Low": low_series.values,
+        "Close": close_series.values
+    })
+    df_chart["Date"] = pd.to_datetime(df_chart["Date"])
+    df_chart = df_chart.sort_values("Date")
+    
+    # Create candlestick figure
+    fig = go.Figure(data=[go.Candlestick(
+        x=df_chart["Date"],
+        open=df_chart["Open"],
+        high=df_chart["High"],
+        low=df_chart["Low"],
+        close=df_chart["Close"],
+        name=chart_symbol
+    )])
+    
+    fig.update_layout(
+        title=f"{chart_symbol} - Last 1 Year Candlestick Chart",
+        yaxis_title="Stock Price (₹)",
+        xaxis_title="Date",
+        template="plotly_white",
+        height=600,
+        hovermode="x unified"
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    # Fallback to line chart if no OHLC data
+    close_series = pd.to_numeric(close_series, errors="coerce").dropna()
+    plot_df = close_series.to_frame(name="Close").reset_index()
+    plot_df["Date"] = pd.to_datetime(plot_df["Date"])
+    st.line_chart(plot_df.set_index("Date")["Close"])

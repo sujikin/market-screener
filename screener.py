@@ -59,10 +59,15 @@ def compute_macd(series, fast=12, slow=26, signal=9):
 # ---------------- DATA FETCH ----------------
 
 def extract_series(raw):
+    """Extract OHLCV series from yfinance data. Returns 7 values for candlestick support."""
     if isinstance(raw.columns, pd.MultiIndex):
         cols = raw.columns.get_level_values(0)
         if "Close" not in cols or "Volume" not in cols:
-            return None, None, None, None
+            return None, None, None, None, None, None, None
+        # Extract OHLC data
+        open_series = raw["Open"].iloc[:, 0] if "Open" in cols else None
+        high_series = raw["High"].iloc[:, 0] if "High" in cols else None
+        low_series = raw["Low"].iloc[:, 0] if "Low" in cols else None
         close_series = raw["Close"].iloc[:, 0]
         # Use "Adj Close" if available, otherwise fall back to "Close"
         if "Adj Close" in cols:
@@ -73,7 +78,11 @@ def extract_series(raw):
         split_series = raw["Stock Splits"].iloc[:, 0] if "Stock Splits" in cols else None
     else:
         if "Close" not in raw.columns or "Volume" not in raw.columns:
-            return None, None, None, None
+            return None, None, None, None, None, None, None
+        # Extract OHLC data
+        open_series = raw["Open"] if "Open" in raw.columns else None
+        high_series = raw["High"] if "High" in raw.columns else None
+        low_series = raw["Low"] if "Low" in raw.columns else None
         close_series = raw["Close"]
         # Use "Adj Close" if available, otherwise fall back to "Close"
         if "Adj Close" in raw.columns:
@@ -83,14 +92,25 @@ def extract_series(raw):
         volume_series = raw["Volume"]
         split_series = raw["Stock Splits"] if "Stock Splits" in raw.columns else None
 
-    return close_series, adj_close_series, volume_series, split_series
+    return open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series
 
-def build_price_df(close_series, adj_close_series, volume_series, split_series):
-    df = pd.DataFrame({
+def build_price_df(open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series):
+    """Build price DataFrame with OHLCV data for candlestick charting support."""
+    df_data = {
         "Close": close_series,
         "Adj_Close": adj_close_series,
         "Volume": volume_series
-    })
+    }
+    
+    # Include OHLC data if available
+    if open_series is not None:
+        df_data["Open"] = open_series
+    if high_series is not None:
+        df_data["High"] = high_series
+    if low_series is not None:
+        df_data["Low"] = low_series
+    
+    df = pd.DataFrame(df_data)
 
     if split_series is not None:
         df["Split"] = split_series
@@ -176,8 +196,8 @@ def save_price_df_to_cache(ticker, df, universe):
             else:
                 cache_df = df_to_save
             
-            # Reorder columns
-            cols = ["Ticker", "Date", "Close", "Adj_Close", "Volume"]
+            # Reorder columns to include OHLC data
+            cols = ["Ticker", "Date", "Open", "High", "Low", "Close", "Adj_Close", "Volume"]
             if "Split" in cache_df.columns:
                 cols.append("Split")
             cache_df = cache_df[[c for c in cols if c in cache_df.columns]]
@@ -273,7 +293,7 @@ def save_cache_bulk(new_data, universe, existing_cache_df=None):
             if cache_df.empty:
                 return
 
-            cols = ["Ticker", "Date", "Close", "Adj_Close", "Volume"]
+            cols = ["Ticker", "Date", "Open", "High", "Low", "Close", "Adj_Close", "Volume"]
             if "Split" in cache_df.columns:
                 cols.append("Split")
             cache_df = cache_df[[c for c in cols if c in cache_df.columns]]
@@ -296,7 +316,12 @@ def save_cache_bulk(new_data, universe, existing_cache_df=None):
             pass
 
 def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cache_df=None):
-    """Download multiple tickers in a single batch call for efficiency"""
+    """Download multiple tickers in a single batch call for efficiency.
+    
+    If a ticker fails (no data found), automatically retry with alternate exchange suffix:
+    - tickers without suffix or with .NS will retry with .BO
+    - tickers with .BO will retry with .NS
+    """
     results = {}  # ticker -> DataFrame mapping
     failed_tickers = set()  # Track tickers that have no price data
     
@@ -322,6 +347,8 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
     if not tickers_to_fetch:
         return results
     
+    tickers_needing_retry = set(tickers_to_fetch)  # Track tickers that need alternate suffix retry
+    
     for attempt in range(retries + 1):
         try:
             # Download all tickers in batch (much faster than individual calls)
@@ -341,10 +368,14 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
             logging.warning(f"Batch download returned empty result for attempt {attempt}")
             continue
         
+        # Clear tickers that we're about to process (they don't need retry if they succeed)
+        tickers_that_succeeded_this_attempt = set()
+        
         # Process each ticker from the batch result
         for ticker in list(tickers_to_fetch):  # Use list() to avoid modification during iteration
-            if ticker in failed_tickers:
-                continue  # Skip tickers that already failed
+            if ticker in results:
+                tickers_needing_retry.discard(ticker)  # Don't retry if we already have it
+                continue  # Skip tickers that already succeeded
                 
             try:
                 if len(tickers_to_fetch) == 1:
@@ -354,25 +385,21 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                     try:
                         ticker_data = raw[raw.columns[raw.columns.get_level_values(1) == ticker]]
                     except (KeyError, IndexError, AttributeError):
-                        logging.warning(f"Failed to extract data for {ticker} from batch result")
-                        failed_tickers.add(ticker)
+                        logging.debug(f"Failed to extract data for {ticker} from batch result")
                         continue
                     
                     if ticker_data.empty:
                         logging.debug(f"No data found for {ticker} in batch")
-                        failed_tickers.add(ticker)
                         continue
                 
-                close_series, adj_close_series, volume_series, split_series = extract_series(ticker_data)
+                open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series = extract_series(ticker_data)
                 if close_series is None:
                     logging.debug(f"Failed to extract OHLCV series for {ticker}")
-                    failed_tickers.add(ticker)
                     continue
                 
-                df = build_price_df(close_series, adj_close_series, volume_series, split_series)
+                df = build_price_df(open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series)
                 if len(df) < 2:
                     logging.debug(f"Insufficient data for {ticker} (only {len(df)} rows)")
-                    failed_tickers.add(ticker)
                     continue
                 
                 close = float(df["Close"].iloc[-1])
@@ -395,18 +422,93 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                 # from concurrent writes to the same cache file.
                 
                 results[ticker] = df
+                tickers_that_succeeded_this_attempt.add(ticker)
+                tickers_needing_retry.discard(ticker)  # Don't retry if we succeeded
             except Exception as e:
-                logging.warning(f"Error processing ticker {ticker} in batch: {e}")
-                failed_tickers.add(ticker)
+                logging.debug(f"Error processing ticker {ticker} in batch: {e}")
                 continue
         
         # If we got all results, return them
-        if len(results) >= len(tickers_to_fetch):
+        if not tickers_needing_retry or len(results) >= len(tickers_to_fetch):
             break
     
-    # Log summary of failed tickers for debugging
-    if failed_tickers:
-        logging.debug(f"Failed to fetch data for {len(failed_tickers)} tickers: {', '.join(sorted(failed_tickers)[:10])}")
+    # ===== RETRY LOGIC: Try alternate suffixes for failed tickers =====
+    # If a ticker failed (no data), try with alternate exchange suffix
+    # E.g., NSDL.NS -> retry as NSDL.BO, or vice versa
+    if tickers_needing_retry and retries > 0:
+        retries_with_alternates = []
+        alternate_to_original = {}  # Maps alternate ticker to original ticker
+        
+        for ticker in tickers_needing_retry:
+            alternate = None
+            if ticker.endswith(".NS"):
+                # Try with .BO instead
+                alternate = ticker[:-3] + ".BO"
+            elif ticker.endswith(".BO"):
+                # Try with .NS instead
+                alternate = ticker[:-3] + ".NS"
+            else:
+                # If no suffix, try .BO (BSE) as alternate
+                alternate = ticker + ".BO"
+            
+            if alternate and alternate not in results:
+                retries_with_alternates.append(alternate)
+                alternate_to_original[alternate] = ticker  # Track mapping
+                logging.debug(f"Will retry {ticker} as {alternate}")
+        
+        # Retry the alternate versions
+        if retries_with_alternates:
+            try:
+                logging.info(f"Retrying {len(retries_with_alternates)} failed tickers with alternate exchange suffixes")
+                alt_raw = yf.download(
+                    retries_with_alternates,
+                    period=LOOKBACK_PERIOD,
+                    interval="1d",
+                    actions=True,
+                    auto_adjust=False,
+                    progress=False
+                )
+                
+                if alt_raw is not None and not alt_raw.empty:
+                    # Process alternate ticker results
+                    for alt_ticker in retries_with_alternates:
+                        if alt_ticker in results or any(alt_ticker == v for v in results.values()):
+                            continue  # Already have this result
+                        
+                        try:
+                            if len(retries_with_alternates) == 1:
+                                ticker_data = alt_raw
+                            else:
+                                try:
+                                    ticker_data = alt_raw[alt_raw.columns[alt_raw.columns.get_level_values(1) == alt_ticker]]
+                                except (KeyError, IndexError, AttributeError):
+                                    continue
+                                
+                                if ticker_data.empty:
+                                    continue
+                            
+                            open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series = extract_series(ticker_data)
+                            if close_series is None:
+                                continue
+                            
+                            df = build_price_df(open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series)
+                            if len(df) < 2:
+                                continue
+                            
+                            # Store under ORIGINAL ticker name so run_screener can find it
+                            original_ticker = alternate_to_original[alt_ticker]
+                            results[original_ticker] = df
+                            logging.info(f"Successfully fetched {original_ticker} using alternate suffix {alt_ticker}")
+                        except Exception as e:
+                            logging.debug(f"Alternate retry for {alt_ticker} also failed: {e}")
+                            continue
+            except Exception as e:
+                logging.debug(f"Batch retry with alternate suffixes failed: {e}")
+    
+    # Log summary of still-failed tickers
+    final_failed = tickers_needing_retry - set(results.keys())
+    if final_failed:
+        logging.debug(f"Still unable to fetch data for {len(final_failed)} tickers: {', '.join(sorted(final_failed)[:10])}")
     
     return results
 
@@ -433,11 +535,11 @@ def download_price_df(ticker, retries=1, universe=None, use_cache=True):
         if raw is None or raw.empty:
             continue
 
-        close_series, adj_close_series, volume_series, split_series = extract_series(raw)
+        open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series = extract_series(raw)
         if close_series is None:
             continue
 
-        df = build_price_df(close_series, adj_close_series, volume_series, split_series)
+        df = build_price_df(open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series)
         if len(df) < 2:
             continue
 
@@ -534,12 +636,11 @@ def parse_universe(universe, custom_tickers):
             if t.endswith(".NS") or t.endswith(".BO"):
                 tickers[t] = t
             else:
-                # Otherwise append .NS
+                # Default to .NS (NSE), but will auto-retry with .BO (BSE) if not found
                 tickers[t] = t + ".NS"
+                logging.debug(f"Added custom ticker: {t} (will try as {t}.NS, then .BO if needed)")
         if not tickers:
             logging.error("No valid custom tickers found.")
-            # We don't raise here to allow empty result, or we can raise to fail fast. 
-            # Let's return empty dict and let caller handle empty results
         return tickers
     raise ValueError("Invalid universe")
 
@@ -547,7 +648,15 @@ def parse_universe(universe, custom_tickers):
 
 def _process_ticker(name, ticker, df, universe, prev_close_map):
     """Process a single ticker with its price DataFrame and return results if applicable"""
-    if df is None or len(df) < 200:
+    if df is None:
+        return None
+    
+    # For custom universe stocks, be more lenient with data requirements (e.g., newly listed stocks, BSE stocks)
+    # For indices (nifty50, niftynext50), require at least 200 days of data
+    min_data_points = 50 if universe == "custom" else 200
+    
+    if len(df) < min_data_points:
+        logging.debug(f"Insufficient data for {ticker}: {len(df)} records (minimum {min_data_points} required)")
         return None
 
     df = df.copy()  # Work on a copy to avoid mutating the caller's DataFrame
@@ -573,8 +682,13 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
                 df = df_retry
 
     df["RSI"] = compute_rsi(df["Close"])
-    df["50DMA"] = df["Close"].rolling(50).mean()
-    df["200DMA"] = df["Close"].rolling(200).mean()
+    
+    # For stocks with insufficient data, use available period for moving averages
+    dma50_period = min(50, len(df) - 1) if len(df) > 1 else 50
+    dma200_period = min(200, len(df) - 1) if len(df) > 1 else 200
+    
+    df["50DMA"] = df["Close"].rolling(dma50_period).mean()
+    df["200DMA"] = df["Close"].rolling(dma200_period).mean()
     df["MACD"], df["Signal"], df["Hist"] = compute_macd(df["Close"])
     df["AvgVol20"] = df["Volume"].rolling(20).mean()
 
