@@ -1,6 +1,8 @@
 import pandas as pd
 import yfinance as yf
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 from io import StringIO
 import os
 import logging
@@ -589,6 +591,46 @@ def reverse_strategy(close, rsi, dma50, dma200):
 
 # ---------------- UNIVERSE ----------------
 
+def load_universe_from_local_scan(which):
+    """Fallback universe from latest scan CSV when NSE endpoint is unavailable."""
+    fallback_file_map = {
+        "nifty50": "latest_scan_nifty50.csv",
+        "niftynext50": "latest_scan_niftynext50.csv",
+    }
+    fallback_file = fallback_file_map.get(which)
+    if not fallback_file or not os.path.exists(fallback_file):
+        return {}
+
+    try:
+        df = pd.read_csv(fallback_file)
+    except Exception as e:
+        logging.warning(f"Failed to read fallback universe file {fallback_file}: {e}")
+        return {}
+
+    if "Ticker" not in df.columns:
+        logging.warning(f"Fallback universe file {fallback_file} is missing 'Ticker' column.")
+        return {}
+
+    tickers = (
+        df["Ticker"]
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .replace("", pd.NA)
+        .dropna()
+        .unique()
+        .tolist()
+    )
+    if not tickers:
+        return {}
+
+    symbols = {}
+    for ticker in tickers:
+        if "." not in ticker:
+            ticker = f"{ticker}.NS"
+        symbols[ticker] = ticker
+    return symbols
+
 def fetch_nse_universe(which):
     if which == "nifty50":
         url = "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
@@ -598,22 +640,55 @@ def fetch_nse_universe(which):
         raise ValueError("Invalid NSE universe")
 
     headers = {"User-Agent": "Mozilla/5.0"}
-    r = requests.get(url, headers=headers, timeout=15)
-    r.raise_for_status()
+    session = requests.Session()
+    retry = Retry(
+        total=4,
+        connect=4,
+        read=4,
+        backoff_factor=1.5,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=frozenset(["GET"]),
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
 
-    df = pd.read_csv(StringIO(r.text))
-    symbols = {}
+    try:
+        r = session.get(url, headers=headers, timeout=(10, 45))
+        r.raise_for_status()
 
-    for _, row in df.iterrows():
-        sym = str(row["Symbol"]).strip().upper()
-        name = row["Company Name"]
-        # Filter out dummy/test tickers that don't have real data
-        if sym in ("DUMMYHDLVR", "DUMMYBRLK"):
-            logging.warning(f"Skipping test ticker: {sym}")
-            continue
-        symbols[name] = sym + ".NS"
+        df = pd.read_csv(StringIO(r.text))
+        if "Symbol" not in df.columns or "Company Name" not in df.columns:
+            raise ValueError("NSE CSV missing expected columns.")
 
-    return symbols
+        symbols = {}
+        for _, row in df.iterrows():
+            sym = str(row["Symbol"]).strip().upper()
+            name = row["Company Name"]
+            # Filter out dummy/test tickers that don't have real data
+            if sym in ("DUMMYHDLVR", "DUMMYBRLK"):
+                logging.warning(f"Skipping test ticker: {sym}")
+                continue
+            symbols[name] = sym + ".NS"
+
+        if symbols:
+            return symbols
+        raise ValueError("NSE CSV parsed but no symbols were found.")
+    except (requests.exceptions.RequestException, ValueError, KeyError) as e:
+        logging.warning(f"Failed to fetch NSE universe '{which}' from network: {e}")
+        fallback_symbols = load_universe_from_local_scan(which)
+        if fallback_symbols:
+            logging.warning(
+                f"Using local fallback universe from latest scan file for '{which}' "
+                f"({len(fallback_symbols)} tickers)."
+            )
+            return fallback_symbols
+        raise RuntimeError(
+            f"Unable to fetch NSE universe '{which}' and no local fallback is available."
+        ) from e
+    finally:
+        session.close()
 
 def parse_universe(universe, custom_tickers):
     if universe == "nifty50":
