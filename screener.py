@@ -40,6 +40,7 @@ LOOKBACK_PERIOD = "1y"
 OVERSOLD_RSI = 30
 VOLUME_SPIKE_MULT = 1.5
 MAX_DAILY_MOVE = 0.2
+YF_DOWNLOAD_TIMEOUT_SECONDS = 30
 
 # ---------------- INDICATORS ----------------
 
@@ -360,7 +361,8 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                 interval="1d",
                 actions=True,
                 auto_adjust=False,
-                progress=False
+                progress=False,
+                timeout=YF_DOWNLOAD_TIMEOUT_SECONDS,
             )
         except Exception as e:
             logging.warning(f"Batch download attempt {attempt} failed: {e}")
@@ -468,7 +470,8 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                     interval="1d",
                     actions=True,
                     auto_adjust=False,
-                    progress=False
+                    progress=False,
+                    timeout=YF_DOWNLOAD_TIMEOUT_SECONDS,
                 )
                 
                 if alt_raw is not None and not alt_raw.empty:
@@ -529,7 +532,8 @@ def download_price_df(ticker, retries=1, universe=None, use_cache=True):
                 interval="1d",
                 actions=True,
                 auto_adjust=False,
-                progress=False
+                progress=False,
+                timeout=YF_DOWNLOAD_TIMEOUT_SECONDS,
             )
         except Exception:
             continue
