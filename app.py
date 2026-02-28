@@ -32,7 +32,9 @@ if "is_custom_universe" not in st.session_state:
 
 # ================= CACHED CHART DATA =================
 @st.cache_data(show_spinner=False)
-def fetch_chart_data(ticker, universe):
+def fetch_chart_data(ticker, universe, cache_version):
+    _ = cache_version  # part of cache key to invalidate when local cache file changes
+
     # Try to load from cache first
     cached_data = load_price_df_from_cache(ticker, universe)
     if cached_data is not None and not cached_data.empty:
@@ -40,6 +42,13 @@ def fetch_chart_data(ticker, universe):
     
     # Fall back to yfinance if cache miss
     return yf.download(ticker, period="1y", interval="1d", progress=False)
+
+def get_cache_version(universe):
+    cache_file = f"price_cache_{universe}.csv"
+    try:
+        return os.path.getmtime(cache_file)
+    except OSError:
+        return 0
 
 # ================= HELP PAGE =================
 if st.session_state.show_help:
@@ -211,7 +220,8 @@ chart_symbol = st.selectbox(
 
 st.session_state.chart_symbol = chart_symbol
 
-hist = fetch_chart_data(chart_symbol, st.session_state.universe)
+cache_version = get_cache_version(st.session_state.universe)
+hist = fetch_chart_data(chart_symbol, st.session_state.universe, cache_version)
 
 if hist is None or hist.empty:
     st.error(f"No historical data for {chart_symbol}")

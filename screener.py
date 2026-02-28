@@ -17,11 +17,17 @@ logging.basicConfig(
     filename='screener.log',
     filemode='a'
 )
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+root_logger = logging.getLogger("")
+has_console_handler = any(
+    isinstance(handler, logging.StreamHandler) and not isinstance(handler, logging.FileHandler)
+    for handler in root_logger.handlers
+)
+if not has_console_handler:
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    console.setFormatter(formatter)
+    root_logger.addHandler(console)
 
 # Locks for thread-safe cache writes
 cache_locks = {}  # universe -> Lock mapping
@@ -127,42 +133,45 @@ def load_price_df_from_cache(ticker, universe):
     cache_file = f"price_cache_{universe}.csv"
     if not os.path.exists(cache_file):
         return None
-    
+
     try:
         cache_df = pd.read_csv(cache_file)
-        if cache_df.empty or "Ticker" not in cache_df.columns:
-            # Corrupted cache file - delete it so it can be regenerated
-            try:
-                os.remove(cache_file)
-            except:
-                pass
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as e:
+        logging.warning(f"Cache file {cache_file} is unreadable: {e}")
+        return None
+    except Exception as e:
+        logging.warning(f"Failed to read cache file {cache_file}: {e}")
+        return None
+
+    try:
+        required_cols = {"Ticker", "Date"}
+        if cache_df.empty or not required_cols.issubset(cache_df.columns):
+            logging.warning(
+                f"Cache file {cache_file} missing required columns. "
+                f"Expected {sorted(required_cols)}, found {sorted(cache_df.columns.tolist())}."
+            )
             return None
-        
+
         # Filter for the specific ticker
         ticker_data = cache_df[cache_df["Ticker"] == ticker].copy()
         if ticker_data.empty:
             return None
-        
+
         # Convert Date to datetime and set as index
         ticker_data["Date"] = pd.to_datetime(ticker_data["Date"])
         ticker_data = ticker_data.sort_values("Date")
         ticker_data.set_index("Date", inplace=True)
-        
+
         # Standardize column name for compatibility (rename old 'Adj Close' to 'Adj_Close')
         if "Adj Close" in ticker_data.columns and "Adj_Close" not in ticker_data.columns:
             ticker_data = ticker_data.rename(columns={"Adj Close": "Adj_Close"})
-        
+
         # Drop ticker column since we don't need it anymore
-        ticker_data = ticker_data.drop(columns=["Ticker"])
-        
+        ticker_data = ticker_data.drop(columns=["Ticker"], errors="ignore")
+
         return ticker_data
     except Exception as e:
         logging.warning(f"Failed to load cache for {ticker}: {e}")
-        # Try to delete corrupted cache file
-        try:
-            os.remove(cache_file)
-        except:
-            pass
         return None
 
 def save_price_df_to_cache(ticker, df, universe):
@@ -187,7 +196,11 @@ def save_price_df_to_cache(ticker, df, universe):
                     else:
                         # Remove old data for this ticker
                         cache_df = cache_df[cache_df["Ticker"] != ticker]
-                except:
+                except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as e:
+                    logging.warning(f"Existing cache file {cache_file} is unreadable, rebuilding it: {e}")
+                    cache_df = pd.DataFrame()
+                except Exception as e:
+                    logging.warning(f"Failed to read existing cache file {cache_file}, rebuilding it: {e}")
                     # Cache is corrupted - start fresh
                     cache_df = pd.DataFrame()
             else:
@@ -219,7 +232,7 @@ def save_price_df_to_cache(ticker, df, universe):
             temp_file = cache_file + ".tmp"
             if os.path.exists(temp_file):
                 os.remove(temp_file)
-        except:
+        except Exception:
             pass
 
 def load_full_cache(universe):
@@ -229,29 +242,31 @@ def load_full_cache(universe):
         return None
     try:
         cache_df = pd.read_csv(cache_file)
-        if cache_df.empty or "Ticker" not in cache_df.columns:
-            # Corrupted cache file - delete it
-            try:
-                os.remove(cache_file)
-            except:
-                pass
-            return None
-        # Standardize column names for compatibility (rename old 'Adj Close' to 'Adj_Close')
-        if "Adj Close" in cache_df.columns and "Adj_Close" not in cache_df.columns:
-            cache_df = cache_df.rename(columns={"Adj Close": "Adj_Close"})
-        return cache_df
-    except Exception as e:
-        logging.warning(f"Failed to load full cache for {universe}: {e}")
-        # Try to delete corrupted cache file
-        try:
-            os.remove(cache_file)
-        except:
-            pass
+    except (pd.errors.EmptyDataError, pd.errors.ParserError, UnicodeDecodeError) as e:
+        logging.warning(f"Full cache file {cache_file} is unreadable: {e}")
         return None
+    except Exception as e:
+        logging.warning(f"Failed to read full cache for {universe}: {e}")
+        return None
+
+    required_cols = {"Ticker", "Date"}
+    if cache_df.empty or not required_cols.issubset(cache_df.columns):
+        logging.warning(
+            f"Full cache file {cache_file} missing required columns. "
+            f"Expected {sorted(required_cols)}, found {sorted(cache_df.columns.tolist())}."
+        )
+        return None
+
+    # Standardize column names for compatibility (rename old 'Adj Close' to 'Adj_Close')
+    if "Adj Close" in cache_df.columns and "Adj_Close" not in cache_df.columns:
+        cache_df = cache_df.rename(columns={"Adj Close": "Adj_Close"})
+    return cache_df
 
 def _lookup_ticker_in_cache(ticker, full_cache_df):
     """Look up a single ticker from an already-loaded cache DataFrame."""
     if full_cache_df is None or full_cache_df.empty:
+        return None
+    if "Ticker" not in full_cache_df.columns or "Date" not in full_cache_df.columns:
         return None
     ticker_data = full_cache_df[full_cache_df["Ticker"] == ticker].copy()
     if ticker_data.empty:
@@ -264,7 +279,7 @@ def _lookup_ticker_in_cache(ticker, full_cache_df):
     if "Adj Close" in ticker_data.columns and "Adj_Close" not in ticker_data.columns:
         ticker_data = ticker_data.rename(columns={"Adj Close": "Adj_Close"})
     
-    ticker_data = ticker_data.drop(columns=["Ticker"])
+    ticker_data = ticker_data.drop(columns=["Ticker"], errors="ignore")
     return ticker_data
 
 def save_cache_bulk(new_data, universe, existing_cache_df=None):
@@ -315,7 +330,7 @@ def save_cache_bulk(new_data, universe, existing_cache_df=None):
             temp_file = cache_file + ".tmp"
             if os.path.exists(temp_file):
                 os.remove(temp_file)
-        except:
+        except Exception:
             pass
 
 def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cache_df=None):
@@ -326,7 +341,6 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
     - tickers with .BO will retry with .NS
     """
     results = {}  # ticker -> DataFrame mapping
-    failed_tickers = set()  # Track tickers that have no price data
     
     # Try cache first for all tickers
     tickers_to_fetch = []
@@ -477,9 +491,10 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                 if alt_raw is not None and not alt_raw.empty:
                     # Process alternate ticker results
                     for alt_ticker in retries_with_alternates:
-                        if alt_ticker in results or any(alt_ticker == v for v in results.values()):
-                            continue  # Already have this result
-                        
+                        original_ticker = alternate_to_original.get(alt_ticker)
+                        if original_ticker in results:
+                            continue
+
                         try:
                             if len(retries_with_alternates) == 1:
                                 ticker_data = alt_raw
@@ -615,24 +630,32 @@ def load_universe_from_local_scan(which):
         logging.warning(f"Fallback universe file {fallback_file} is missing 'Ticker' column.")
         return {}
 
-    tickers = (
-        df["Ticker"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-        .replace("", pd.NA)
-        .dropna()
-        .unique()
-        .tolist()
-    )
-    if not tickers:
-        return {}
-
     symbols = {}
-    for ticker in tickers:
-        if "." not in ticker:
-            ticker = f"{ticker}.NS"
-        symbols[ticker] = ticker
+    if "Stock" in df.columns:
+        rows = df.dropna(subset=["Ticker", "Stock"])
+        for _, row in rows.iterrows():
+            ticker = str(row["Ticker"]).strip().upper()
+            if not ticker:
+                continue
+            if "." not in ticker:
+                ticker = f"{ticker}.NS"
+            stock_name = str(row["Stock"]).strip() or ticker
+            symbols[stock_name] = ticker
+    else:
+        tickers = (
+            df["Ticker"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .replace("", pd.NA)
+            .dropna()
+            .unique()
+            .tolist()
+        )
+        for ticker in tickers:
+            if "." not in ticker:
+                ticker = f"{ticker}.NS"
+            symbols[ticker] = ticker
     return symbols
 
 def fetch_nse_universe(which):
@@ -760,23 +783,37 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
                     return None
                 df = df_retry
 
+    raw_close = pd.to_numeric(df["Close"], errors="coerce").dropna()
+    if len(raw_close) < 2:
+        return None
+    lookback_points = min(252, len(raw_close))
+    first_price = float(raw_close.iloc[-lookback_points])
+    if first_price <= 0:
+        return None
+
     df["RSI"] = compute_rsi(df["Close"])
     
     # For stocks with insufficient data, use available period for moving averages
-    dma50_period = min(50, len(df) - 1) if len(df) > 1 else 50
-    dma200_period = min(200, len(df) - 1) if len(df) > 1 else 200
+    dma50_period = min(50, len(df))
+    dma200_period = min(200, len(df))
     
     df["50DMA"] = df["Close"].rolling(dma50_period).mean()
     df["200DMA"] = df["Close"].rolling(dma200_period).mean()
     df["MACD"], df["Signal"], df["Hist"] = compute_macd(df["Close"])
     df["AvgVol20"] = df["Volume"].rolling(20).mean()
 
-    df = df.dropna()
     if len(df) < 2:
         return None
 
     latest = df.iloc[-1]
     prev = df.iloc[-2]
+
+    required_latest = ["Close", "Adj_Close", "RSI", "50DMA", "200DMA", "Volume", "AvgVol20", "Hist"]
+    if any(pd.isna(latest[col]) for col in required_latest):
+        logging.debug(f"Latest row has incomplete indicator data for {ticker}")
+        return None
+    if pd.isna(prev["Hist"]):
+        return None
 
     close = float(latest["Close"])
     adj_close = float(latest["Adj_Close"])
@@ -817,7 +854,6 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
     else:
         action = "HOLD"
 
-    first_price = float(df["Close"].iloc[0])
     ret_pct = (close - first_price) / first_price * 100
 
     return [
@@ -832,8 +868,8 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
 
 def run_screener(strategy, universe, custom_tickers, prev_close_map=None, max_workers=10, batch_size=50):
     tickers_dict = parse_universe(universe, custom_tickers)
-    tickers_list = list(tickers_dict.keys())
     ticker_symbols = list(tickers_dict.values())
+    symbol_to_name = {symbol: name for name, symbol in tickers_dict.items()}
 
     if strategy == "contra":
         priority = ["OVERSOLD", "CONTRA BUY", "BUY", "BUILD", "SELL", "EXIT", "SHORT", "HOLD"]
@@ -863,8 +899,7 @@ def run_screener(strategy, universe, custom_tickers, prev_close_map=None, max_wo
                 batch_results = future.result()
                 for ticker_symbol, df in batch_results.items():
                     all_price_data[ticker_symbol] = df
-                    idx = ticker_symbols.index(ticker_symbol)
-                    name = tickers_list[idx]
+                    name = symbol_to_name.get(ticker_symbol, ticker_symbol)
                     result = _process_ticker(name, ticker_symbol, df, universe, prev_close_map)
                     if result:
                         results.append(result)
