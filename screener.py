@@ -52,8 +52,10 @@ YF_DOWNLOAD_TIMEOUT_SECONDS = 30
 
 def compute_rsi(series, period=RSI_PERIOD):
     delta = series.diff()
-    gain = delta.clip(lower=0).rolling(period).mean()
-    loss = -delta.clip(upper=0).rolling(period).mean()
+    gain = delta.clip(lower=0)
+    loss = -delta.clip(upper=0)
+    gain = gain.ewm(alpha=1 / period, adjust=False, min_periods=period).mean()
+    loss = loss.ewm(alpha=1 / period, adjust=False, min_periods=period).mean()
     rs = gain / (loss + 1e-10)
     return 100 - (100 / (1 + rs))
 
@@ -144,11 +146,13 @@ def load_price_df_from_cache(ticker, universe):
         return None
 
     try:
-        required_cols = {"Ticker", "Date"}
-        if cache_df.empty or not required_cols.issubset(cache_df.columns):
+        required_cols = {"Ticker", "Date", "Close", "Volume"}
+        has_adj_col = "Adj_Close" in cache_df.columns or "Adj Close" in cache_df.columns
+        if cache_df.empty or not required_cols.issubset(cache_df.columns) or not has_adj_col:
             logging.warning(
-                f"Cache file {cache_file} missing required columns. "
-                f"Expected {sorted(required_cols)}, found {sorted(cache_df.columns.tolist())}."
+                f"Cache file {cache_file} missing required market columns. "
+                f"Required={sorted(required_cols)} + one of ['Adj_Close','Adj Close'], "
+                f"found={sorted(cache_df.columns.tolist())}."
             )
             return None
 
@@ -249,11 +253,13 @@ def load_full_cache(universe):
         logging.warning(f"Failed to read full cache for {universe}: {e}")
         return None
 
-    required_cols = {"Ticker", "Date"}
-    if cache_df.empty or not required_cols.issubset(cache_df.columns):
+    required_cols = {"Ticker", "Date", "Close", "Volume"}
+    has_adj_col = "Adj_Close" in cache_df.columns or "Adj Close" in cache_df.columns
+    if cache_df.empty or not required_cols.issubset(cache_df.columns) or not has_adj_col:
         logging.warning(
-            f"Full cache file {cache_file} missing required columns. "
-            f"Expected {sorted(required_cols)}, found {sorted(cache_df.columns.tolist())}."
+            f"Full cache file {cache_file} missing required market columns. "
+            f"Required={sorted(required_cols)} + one of ['Adj_Close','Adj Close'], "
+            f"found={sorted(cache_df.columns.tolist())}."
         )
         return None
 
@@ -266,7 +272,9 @@ def _lookup_ticker_in_cache(ticker, full_cache_df):
     """Look up a single ticker from an already-loaded cache DataFrame."""
     if full_cache_df is None or full_cache_df.empty:
         return None
-    if "Ticker" not in full_cache_df.columns or "Date" not in full_cache_df.columns:
+    required_cols = {"Ticker", "Date", "Close", "Volume"}
+    has_adj_col = "Adj_Close" in full_cache_df.columns or "Adj Close" in full_cache_df.columns
+    if not required_cols.issubset(full_cache_df.columns) or not has_adj_col:
         return None
     ticker_data = full_cache_df[full_cache_df["Ticker"] == ticker].copy()
     if ticker_data.empty:
@@ -767,9 +775,12 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
     if "Adj Close" in df.columns and "Adj_Close" not in df.columns:
         df = df.rename(columns={"Adj Close": "Adj_Close"})
     
-    # Debug: check what columns we have
-    if "Adj_Close" not in df.columns:
-        logging.error(f"Missing 'Adj_Close' column for {ticker}. Available columns: {list(df.columns)}")
+    required_base_cols = {"Close", "Adj_Close", "Volume"}
+    missing_base = sorted(required_base_cols - set(df.columns))
+    if missing_base:
+        logging.error(
+            f"Missing required columns for {ticker}: {missing_base}. Available columns: {list(df.columns)}"
+        )
         return None
 
     if prev_close_map and ticker in prev_close_map:
@@ -900,7 +911,11 @@ def run_screener(strategy, universe, custom_tickers, prev_close_map=None, max_wo
                 for ticker_symbol, df in batch_results.items():
                     all_price_data[ticker_symbol] = df
                     name = symbol_to_name.get(ticker_symbol, ticker_symbol)
-                    result = _process_ticker(name, ticker_symbol, df, universe, prev_close_map)
+                    try:
+                        result = _process_ticker(name, ticker_symbol, df, universe, prev_close_map)
+                    except Exception as ticker_error:
+                        logging.error(f"Error processing ticker {ticker_symbol}: {ticker_error}")
+                        continue
                     if result:
                         results.append(result)
             except Exception as e:

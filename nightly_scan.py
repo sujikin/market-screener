@@ -1,7 +1,10 @@
-from screener import run_screener
+from screener import load_full_cache, run_screener
 import pandas as pd
 import os
 import traceback
+
+from services.fundamentals_cache import build_fundamentals_cache, write_fundamentals_cache
+from services.scan_repository import build_snapshot_meta, write_snapshot_meta
 
 def load_prev_close_map(filename):
     if not os.path.exists(filename):
@@ -20,6 +23,25 @@ def load_prev_close_map(filename):
     df_prev = df_prev.dropna(subset=["Ticker", "Close"])
     return dict(zip(df_prev["Ticker"].astype(str), df_prev["Close"].astype(float)))
 
+
+def write_snapshot_artifacts(universe, scan_df):
+    cache_df = load_full_cache(universe)
+    if cache_df is None:
+        cache_df = pd.DataFrame()
+
+    metadata = build_snapshot_meta(
+        universe_key=universe,
+        scan_df=scan_df,
+        cache_df=cache_df,
+    )
+    write_snapshot_meta(universe, metadata)
+
+
+def write_fundamentals_artifacts(universe, scan_df):
+    tickers = scan_df["Ticker"].dropna().astype(str).tolist() if "Ticker" in scan_df.columns else []
+    payload = build_fundamentals_cache(universe, tickers)
+    write_fundamentals_cache(universe, payload)
+
 def main():
     print("Starting nightly market scans...")
     successful_scans = 0
@@ -35,8 +57,15 @@ def main():
             prev_close_map=prev_close_nifty50
         )
 
+        if df_nifty50.empty:
+            raise RuntimeError("NIFTY50 scan returned empty result; preserving existing scan file.")
+
         df_nifty50.to_csv("latest_scan_nifty50.csv", index=False)
+        write_snapshot_artifacts("nifty50", df_nifty50)
+        write_fundamentals_artifacts("nifty50", df_nifty50)
         print(f"Saved latest_scan_nifty50.csv ({len(df_nifty50)} stocks)")
+        print("Saved snapshot_meta_nifty50.json")
+        print("Saved fundamentals_cache_nifty50.json")
         print("Price cache updated at price_cache_nifty50.csv")
         successful_scans += 1
     except Exception as e:
@@ -54,8 +83,15 @@ def main():
             prev_close_map=prev_close_niftynext50
         )
 
+        if df_niftynext50.empty:
+            raise RuntimeError("NIFTYNEXT50 scan returned empty result; preserving existing scan file.")
+
         df_niftynext50.to_csv("latest_scan_niftynext50.csv", index=False)
+        write_snapshot_artifacts("niftynext50", df_niftynext50)
+        write_fundamentals_artifacts("niftynext50", df_niftynext50)
         print(f"Saved latest_scan_niftynext50.csv ({len(df_niftynext50)} stocks)")
+        print("Saved snapshot_meta_niftynext50.json")
+        print("Saved fundamentals_cache_niftynext50.json")
         print("Price cache updated at price_cache_niftynext50.csv")
         successful_scans += 1
     except Exception as e:

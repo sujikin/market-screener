@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "universe_key": "nifty50",
+  "universe_label": "Nifty 50",
+  "mode": "snapshot",
+  "generated_at": "2026-03-12T13:04:55.033511+00:00",
+  "market_data_date": "2026-03-12",
+  "screened_count": 49,
+  "constituent_count": 50,
+  "action_counts": {
+    "HOLD": 24,
+    "SHORT": 9,
+    "CONTRA BUY": 8,
+    "BUILD": 4,
+    "EXIT": 2,
+    "BUY": 1,
+    "SELL": 1
+  },
+  "missing_constituents": [
+    {
+      "ticker": "TMPV.NS",
+      "stock": "TMPV.NS",
+      "reason": "insufficient_history",
+      "history_days": 101
+    }
+  ]
+}

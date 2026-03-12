@@ -2,4 +2,7 @@ __pycache__/
 *.pyc
 TASK.MD
 ACTION_ITEMS.MD
+tests/
+screener.log
+
 
