@@ -3,10 +3,10 @@
   "universe_key": "nifty50",
   "universe_label": "Nifty 50",
   "mode": "snapshot",
-  "generated_at": "2026-03-12T13:33:08.703790+00:00",
+  "generated_at": "2026-03-12T14:30:14.102396+00:00",
   "market_data_date": "2026-03-12",
   "screened_count": 49,
-  "constituent_count": 53,
+  "constituent_count": 50,
   "action_counts": {
     "HOLD": 20,
     "SHORT": 10,
@@ -18,26 +18,8 @@
   },
   "missing_constituents": [
     {
-      "ticker": "<<<<<<< HEAD",
-      "stock": "<<<<<<< HEAD",
-      "reason": "insufficient_history",
-      "history_days": 98
-    },
-    {
-      "ticker": "=======",
-      "stock": "=======",
-      "reason": "insufficient_history",
-      "history_days": 98
-    },
-    {
-      "ticker": ">>>>>>> 0DBAC6B2308B6EF5167EE47F3A20B89BFBF80BF0",
-      "stock": ">>>>>>> 0DBAC6B2308B6EF5167EE47F3A20B89BFBF80BF0",
-      "reason": "insufficient_history",
-      "history_days": 98
-    },
-    {
       "ticker": "TMPV.NS",
-      "stock": "TMPV.NS",
+      "stock": "Tata Motors Passenger Vehicles Ltd.",
       "reason": "insufficient_history",
       "history_days": 101
     }

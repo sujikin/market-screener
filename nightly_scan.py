@@ -1,4 +1,6 @@
-from screener import load_full_cache, run_screener
+import logging
+
+from screener import load_full_cache, parse_universe, run_screener
 import pandas as pd
 import os
 import traceback
@@ -29,10 +31,18 @@ def write_snapshot_artifacts(universe, scan_df):
     if cache_df is None:
         cache_df = pd.DataFrame()
 
+    constituent_map = None
+    if universe in {"nifty50", "niftynext50"}:
+        try:
+            constituent_map = parse_universe(universe, "")
+        except Exception as exc:
+            logging.warning(f"Unable to refresh constituent map for {universe}: {exc}")
+
     metadata = build_snapshot_meta(
         universe_key=universe,
         scan_df=scan_df,
         cache_df=cache_df,
+        constituent_map=constituent_map,
     )
     write_snapshot_meta(universe, metadata)
 

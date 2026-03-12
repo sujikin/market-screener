@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from app_utils import validate_scan_dataframe
+from app_utils import is_valid_ticker, normalize_ticker, validate_scan_dataframe
 from services.models import MissingConstituent, UniverseSnapshot
 
 
@@ -36,7 +36,64 @@ def _coerce_base_path(base_path: str | Path = ".") -> Path:
 
 
 def _normalize_ticker(value: str) -> str:
-    return str(value).strip().upper()
+    return normalize_ticker(value)
+
+
+def _sanitize_ticker_frame(df: pd.DataFrame, ticker_column: str = "Ticker") -> pd.DataFrame:
+    if df.empty or ticker_column not in df.columns:
+        return df.copy()
+
+    cleaned = df.copy()
+    cleaned[ticker_column] = cleaned[ticker_column].map(_normalize_ticker)
+    return cleaned.loc[cleaned[ticker_column].map(is_valid_ticker)].copy()
+
+
+def _sanitize_constituent_map(constituent_map: dict[str, str] | None) -> dict[str, str] | None:
+    if not constituent_map:
+        return None
+
+    cleaned = {}
+    for stock, ticker in constituent_map.items():
+        normalized = _normalize_ticker(ticker)
+        if not is_valid_ticker(normalized):
+            continue
+        stock_name = str(stock).strip() or normalized
+        cleaned[stock_name] = normalized
+    return cleaned or None
+
+
+def _sanitize_missing_constituent_items(items: list[dict] | None) -> list[dict]:
+    cleaned = []
+    for item in items or []:
+        ticker = _normalize_ticker(item.get("ticker", ""))
+        if not is_valid_ticker(ticker):
+            continue
+        cleaned.append(
+            {
+                "ticker": ticker,
+                "stock": str(item.get("stock", "")).strip() or ticker,
+                "reason": str(item.get("reason", "screening_failed")),
+                "history_days": int(item.get("history_days", 0)),
+            }
+        )
+    return cleaned
+
+
+def _metadata_needs_refresh(metadata: dict | None, scan_df: pd.DataFrame) -> bool:
+    if metadata is None:
+        return True
+
+    clean_missing = _sanitize_missing_constituent_items(metadata.get("missing_constituents", []))
+    if len(clean_missing) != len(metadata.get("missing_constituents", [])):
+        return True
+
+    expected_screened = int(len(scan_df))
+    expected_constituents = expected_screened + len(clean_missing)
+    if int(metadata.get("screened_count", expected_screened)) != expected_screened:
+        return True
+    if int(metadata.get("constituent_count", expected_constituents)) != expected_constituents:
+        return True
+    return False
 
 
 def _min_history_days(universe_key: str) -> int:
@@ -64,7 +121,7 @@ def load_scan_df(universe_key: str, base_path: str | Path = ".") -> pd.DataFrame
     ok, missing = validate_scan_dataframe(df)
     if not ok:
         raise ValueError(f"Snapshot file {path} missing required columns: {', '.join(missing)}")
-    return df
+    return _sanitize_ticker_frame(df)
 
 
 def load_cache_df(universe_key: str, base_path: str | Path = ".") -> pd.DataFrame:
@@ -77,7 +134,7 @@ def load_cache_df(universe_key: str, base_path: str | Path = ".") -> pd.DataFram
         df = df.rename(columns={"Adj Close": "Adj_Close"})
     if "Date" in df.columns:
         df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-    return df
+    return _sanitize_ticker_frame(df)
 
 
 def load_grouped_cache(universe_key: str, base_path: str | Path = ".") -> dict[str, pd.DataFrame]:
@@ -102,6 +159,7 @@ def build_market_data_date(cache_df: pd.DataFrame) -> date | None:
 
 
 def _history_days_by_ticker(cache_df: pd.DataFrame) -> dict[str, int]:
+    cache_df = _sanitize_ticker_frame(cache_df)
     if cache_df.empty or "Ticker" not in cache_df.columns:
         return {}
     history = cache_df.groupby("Ticker").size()
@@ -122,6 +180,10 @@ def build_missing_constituents(
     cache_df: pd.DataFrame,
     constituent_map: dict[str, str] | None = None,
 ) -> list[dict]:
+    scan_df = _sanitize_ticker_frame(scan_df)
+    cache_df = _sanitize_ticker_frame(cache_df)
+    constituent_map = _sanitize_constituent_map(constituent_map)
+
     scan_tickers = set()
     if "Ticker" in scan_df.columns:
         scan_tickers = {_normalize_ticker(ticker) for ticker in scan_df["Ticker"].dropna().tolist()}
@@ -164,6 +226,10 @@ def build_snapshot_meta(
     constituent_map: dict[str, str] | None = None,
     generated_at: datetime | None = None,
 ) -> dict:
+    scan_df = _sanitize_ticker_frame(scan_df)
+    cache_df = _sanitize_ticker_frame(cache_df)
+    constituent_map = _sanitize_constituent_map(constituent_map)
+
     if generated_at is None:
         generated_at = datetime.now(timezone.utc)
 
@@ -245,7 +311,7 @@ def load_index_snapshot(universe_key: str, base_path: str | Path = ".") -> Unive
     scan_df = load_scan_df(universe_key, base_path)
     cache_df = load_cache_df(universe_key, base_path)
     metadata = load_snapshot_meta(universe_key, base_path)
-    if metadata is None:
+    if _metadata_needs_refresh(metadata, scan_df):
         metadata = build_snapshot_meta(universe_key, scan_df, cache_df)
 
     missing_constituents = [
@@ -255,7 +321,7 @@ def load_index_snapshot(universe_key: str, base_path: str | Path = ".") -> Unive
             reason=item["reason"],
             history_days=int(item.get("history_days", 0)),
         )
-        for item in metadata.get("missing_constituents", [])
+        for item in _sanitize_missing_constituent_items(metadata.get("missing_constituents", []))
     ]
 
     constituent_map = {

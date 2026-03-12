@@ -10,6 +10,8 @@ import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 
+from app_utils import is_valid_ticker, normalize_ticker
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -37,6 +39,19 @@ def get_cache_lock(universe):
     if universe not in cache_locks:
         cache_locks[universe] = Lock()
     return cache_locks[universe]
+
+
+def _sanitize_cache_df(cache_df):
+    if cache_df is None or cache_df.empty or "Ticker" not in cache_df.columns:
+        return cache_df
+
+    cleaned = cache_df.copy()
+    cleaned["Ticker"] = cleaned["Ticker"].map(normalize_ticker)
+    valid_mask = cleaned["Ticker"].map(is_valid_ticker)
+    dropped = int((~valid_mask).sum())
+    if dropped:
+        logging.warning(f"Dropping {dropped} invalid ticker rows from cache data.")
+    return cleaned.loc[valid_mask].copy()
 
 RSI_PERIOD = 14
 RSI_ATTRACTIVE = 40
@@ -146,6 +161,12 @@ def load_price_df_from_cache(ticker, universe):
         return None
 
     try:
+        ticker = normalize_ticker(ticker)
+        if not is_valid_ticker(ticker):
+            logging.warning(f"Invalid ticker requested from cache: {ticker}")
+            return None
+
+        cache_df = _sanitize_cache_df(cache_df)
         required_cols = {"Ticker", "Date", "Close", "Volume"}
         has_adj_col = "Adj_Close" in cache_df.columns or "Adj Close" in cache_df.columns
         if cache_df.empty or not required_cols.issubset(cache_df.columns) or not has_adj_col:
@@ -182,6 +203,10 @@ def save_price_df_to_cache(ticker, df, universe):
     """Save price data to cache CSV file using atomic write with thread safety"""
     cache_file = f"price_cache_{universe}.csv"
     cache_lock = get_cache_lock(universe)
+    ticker = normalize_ticker(ticker)
+    if not is_valid_ticker(ticker):
+        logging.warning(f"Skipping cache write for invalid ticker: {ticker}")
+        return
     
     try:
         with cache_lock:
@@ -194,6 +219,7 @@ def save_price_df_to_cache(ticker, df, universe):
             if os.path.exists(cache_file):
                 try:
                     cache_df = pd.read_csv(cache_file)
+                    cache_df = _sanitize_cache_df(cache_df)
                     if cache_df.empty or "Ticker" not in cache_df.columns:
                         # Corrupted cache - start fresh
                         cache_df = pd.DataFrame()
@@ -253,6 +279,7 @@ def load_full_cache(universe):
         logging.warning(f"Failed to read full cache for {universe}: {e}")
         return None
 
+    cache_df = _sanitize_cache_df(cache_df)
     required_cols = {"Ticker", "Date", "Close", "Volume"}
     has_adj_col = "Adj_Close" in cache_df.columns or "Adj Close" in cache_df.columns
     if cache_df.empty or not required_cols.issubset(cache_df.columns) or not has_adj_col:
@@ -271,6 +298,9 @@ def load_full_cache(universe):
 def _lookup_ticker_in_cache(ticker, full_cache_df):
     """Look up a single ticker from an already-loaded cache DataFrame."""
     if full_cache_df is None or full_cache_df.empty:
+        return None
+    ticker = normalize_ticker(ticker)
+    if not is_valid_ticker(ticker):
         return None
     required_cols = {"Ticker", "Date", "Close", "Volume"}
     has_adj_col = "Adj_Close" in full_cache_df.columns or "Adj Close" in full_cache_df.columns
@@ -297,13 +327,23 @@ def save_cache_bulk(new_data, universe, existing_cache_df=None):
     
     try:
         with cache_lock:
+            valid_new_tickers = {
+                normalize_ticker(ticker)
+                for ticker in new_data.keys()
+                if is_valid_ticker(normalize_ticker(ticker))
+            }
             if existing_cache_df is not None and not existing_cache_df.empty:
-                cache_df = existing_cache_df[~existing_cache_df["Ticker"].isin(new_data.keys())].copy()
+                existing_cache_df = _sanitize_cache_df(existing_cache_df)
+                cache_df = existing_cache_df[~existing_cache_df["Ticker"].isin(valid_new_tickers)].copy()
             else:
                 cache_df = pd.DataFrame()
 
             new_frames = []
             for ticker, df in new_data.items():
+                ticker = normalize_ticker(ticker)
+                if not is_valid_ticker(ticker):
+                    logging.warning(f"Skipping invalid ticker during bulk cache save: {ticker}")
+                    continue
                 df_to_save = df.reset_index()
                 df_to_save["Date"] = pd.to_datetime(df_to_save["Date"]).dt.strftime("%Y-%m-%d")
                 df_to_save["Ticker"] = ticker
@@ -642,11 +682,11 @@ def load_universe_from_local_scan(which):
     if "Stock" in df.columns:
         rows = df.dropna(subset=["Ticker", "Stock"])
         for _, row in rows.iterrows():
-            ticker = str(row["Ticker"]).strip().upper()
-            if not ticker:
-                continue
+            ticker = normalize_ticker(row["Ticker"])
             if "." not in ticker:
                 ticker = f"{ticker}.NS"
+            if not is_valid_ticker(ticker):
+                continue
             stock_name = str(row["Stock"]).strip() or ticker
             symbols[stock_name] = ticker
     else:
@@ -663,6 +703,8 @@ def load_universe_from_local_scan(which):
         for ticker in tickers:
             if "." not in ticker:
                 ticker = f"{ticker}.NS"
+            if not is_valid_ticker(ticker):
+                continue
             symbols[ticker] = ticker
     return symbols
 
@@ -705,7 +747,11 @@ def fetch_nse_universe(which):
             if sym in ("DUMMYHDLVR", "DUMMYBRLK"):
                 logging.warning(f"Skipping test ticker: {sym}")
                 continue
-            symbols[name] = sym + ".NS"
+            ticker = f"{sym}.NS"
+            if not is_valid_ticker(ticker):
+                logging.warning(f"Skipping invalid NSE ticker: {ticker}")
+                continue
+            symbols[name] = ticker
 
         if symbols:
             return symbols
