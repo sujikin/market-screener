@@ -3,19 +3,38 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-03-12T13:06:23.485160+00:00",
+  "generated_at": "2026-03-12T13:34:28.951278+00:00",
   "market_data_date": "2026-03-12",
   "screened_count": 48,
-  "constituent_count": 50,
+  "constituent_count": 53,
   "action_counts": {
     "HOLD": 20,
-    "SHORT": 9,
-    "CONTRA BUY": 7,
+    "CONTRA BUY": 9,
     "BUILD": 5,
-    "EXIT": 4,
-    "BUY": 3
+    "EXIT": 5,
+    "SHORT": 5,
+    "OVERSOLD": 2,
+    "BUY": 2
   },
   "missing_constituents": [
+    {
+      "ticker": "<<<<<<< HEAD",
+      "stock": "<<<<<<< HEAD",
+      "reason": "insufficient_history",
+      "history_days": 68
+    },
+    {
+      "ticker": "=======",
+      "stock": "=======",
+      "reason": "insufficient_history",
+      "history_days": 68
+    },
+    {
+      "ticker": ">>>>>>> 0DBAC6B2308B6EF5167EE47F3A20B89BFBF80BF0",
+      "stock": ">>>>>>> 0DBAC6B2308B6EF5167EE47F3A20B89BFBF80BF0",
+      "reason": "insufficient_history",
+      "history_days": 68
+    },
     {
       "ticker": "ENRIN.NS",
       "stock": "ENRIN.NS",
