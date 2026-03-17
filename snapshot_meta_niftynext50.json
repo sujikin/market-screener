@@ -3,31 +3,31 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-03-16T19:54:34.094578+00:00",
-  "market_data_date": "2026-03-12",
+  "generated_at": "2026-03-17T19:56:26.457461+00:00",
+  "market_data_date": "2026-03-17",
   "screened_count": 48,
   "constituent_count": 50,
   "action_counts": {
-    "HOLD": 20,
-    "CONTRA BUY": 9,
-    "BUILD": 5,
+    "CONTRA BUY": 16,
+    "HOLD": 16,
     "EXIT": 5,
-    "SHORT": 5,
+    "SHORT": 4,
+    "BUILD": 4,
     "BUY": 2,
-    "OVERSOLD": 2
+    "SELL": 1
   },
   "missing_constituents": [
     {
       "ticker": "ENRIN.NS",
       "stock": "Siemens Energy India Ltd.",
       "reason": "insufficient_history",
-      "history_days": 181
+      "history_days": 184
     },
     {
       "ticker": "LTM.NS",
       "stock": "LTIMindtree Ltd.",
       "reason": "insufficient_history",
-      "history_days": 16
+      "history_days": 19
     }
   ]
 }
