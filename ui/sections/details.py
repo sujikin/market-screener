@@ -46,7 +46,7 @@ def _format_fundamental_display(label: str, value: object) -> str:
         numeric = float(value)
     except (TypeError, ValueError):
         return str(value)
-    if label == "Debt / Equity":
+    if label in {"Debt / Equity", "P/E Ratio"}:
         return f"{numeric:.2f}x"
     return f"{numeric:.1f}%"
 
@@ -131,8 +131,13 @@ def render_detail_chart(
         st.info("No chart data available for this selection.")
         return
 
-    plot_df["DMA50"] = plot_df["Close"].rolling(min(50, len(plot_df))).mean()
-    plot_df["DMA200"] = plot_df["Close"].rolling(min(200, len(plot_df))).mean()
+    indicator_series = (
+        pd.to_numeric(plot_df["Adj_Close"], errors="coerce")
+        if "Adj_Close" in plot_df.columns
+        else plot_df["Close"]
+    )
+    plot_df["DMA50"] = indicator_series.rolling(min(50, len(plot_df))).mean()
+    plot_df["DMA200"] = indicator_series.rolling(min(200, len(plot_df))).mean()
     plot_df = _trim_history(plot_df, timeframe)
 
     has_ohlc = all(col in plot_df.columns for col in ["Open", "High", "Low", "Close"])

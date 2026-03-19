@@ -468,8 +468,6 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                     logging.debug(f"Insufficient data for {ticker} (only {len(df)} rows)")
                     continue
                 
-                close = float(df["Close"].iloc[-1])
-                prev_close = float(df["Close"].iloc[-2])
                 adj_close = float(df["Adj_Close"].iloc[-1])
                 prev_adj_close = float(df["Adj_Close"].iloc[-2])
                 last_split = float(df["Split"].iloc[-1]) if "Split" in df else 0.0
@@ -612,8 +610,6 @@ def download_price_df(ticker, retries=1, universe=None, use_cache=True):
         if len(df) < 2:
             continue
 
-        close = float(df["Close"].iloc[-1])
-        prev_close = float(df["Close"].iloc[-2])
         adj_close = float(df["Adj_Close"].iloc[-1])
         prev_adj_close = float(df["Adj_Close"].iloc[-2])
         last_split = float(df["Split"].iloc[-1]) if "Split" in df else 0.0
@@ -848,15 +844,18 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
     if first_price <= 0:
         return None
 
-    df["RSI"] = compute_rsi(df["Close"])
+    # Use dividend-adjusted closes for indicator inputs so corporate actions
+    # do not distort momentum and trend signals.
+    indicator_series = df["Adj_Close"]
+    df["RSI"] = compute_rsi(indicator_series)
     
     # For stocks with insufficient data, use available period for moving averages
     dma50_period = min(50, len(df))
     dma200_period = min(200, len(df))
     
-    df["50DMA"] = df["Close"].rolling(dma50_period).mean()
-    df["200DMA"] = df["Close"].rolling(dma200_period).mean()
-    df["MACD"], df["Signal"], df["Hist"] = compute_macd(df["Close"])
+    df["50DMA"] = indicator_series.rolling(dma50_period).mean()
+    df["200DMA"] = indicator_series.rolling(dma200_period).mean()
+    df["MACD"], df["Signal"], df["Hist"] = compute_macd(indicator_series)
     df["AvgVol20"] = df["Volume"].rolling(20).mean()
 
     if len(df) < 2:

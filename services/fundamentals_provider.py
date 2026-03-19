@@ -6,6 +6,16 @@ import pandas as pd
 import yfinance as yf
 
 
+def _coerce_float(value: object) -> float | None:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return None
+    if pd.isna(numeric):
+        return None
+    return numeric
+
+
 def _numeric_series(frame: pd.DataFrame | None, aliases: list[str]) -> pd.Series:
     if frame is None or frame.empty:
         return pd.Series(dtype=float)
@@ -45,9 +55,20 @@ def _average_non_null(current: float | None, previous: float | None) -> float | 
     return sum(values) / len(values)
 
 
+def _pe_ratio_from_quote_info(quote_info: dict[str, object] | None) -> float | None:
+    if not isinstance(quote_info, dict):
+        return None
+    for key in ["trailingPE", "forwardPE"]:
+        value = _coerce_float(quote_info.get(key))
+        if value is not None:
+            return value
+    return None
+
+
 def build_experimental_fundamentals_from_frames(
     income_stmt: pd.DataFrame | None,
     balance_sheet: pd.DataFrame | None,
+    quote_info: dict[str, object] | None = None,
 ) -> tuple[dict[str, object], str]:
     net_income_series = _numeric_series(
         income_stmt,
@@ -103,6 +124,7 @@ def build_experimental_fundamentals_from_frames(
 
     avg_equity = _average_non_null(equity_current, equity_previous)
     avg_capital_employed = _average_non_null(invested_capital_current, invested_capital_previous)
+    pe_ratio = _pe_ratio_from_quote_info(quote_info)
 
     metrics = {
         "ROE": _ratio_percent(net_income_current, avg_equity),
@@ -111,6 +133,7 @@ def build_experimental_fundamentals_from_frames(
         "Operating Margin": _ratio_percent(operating_income_current, revenue_current),
         "Sales Growth": _growth_percent(revenue_current, revenue_previous),
         "Profit Growth": _growth_percent(net_income_current, net_income_previous),
+        "P/E Ratio": pe_ratio,
     }
 
     as_of = ""
@@ -126,9 +149,10 @@ def build_experimental_fundamentals_from_frames(
         status = "Experimental fundamentals via yfinance are unavailable for this ticker right now."
     else:
         status = (
-            "Experimental fundamentals via yfinance / Yahoo annual statements."
+            "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary."
             + (f" As of {as_of}." if as_of else "")
-            + " ROE uses net income over average equity; ROCE uses EBIT over average capital employed."
+            + " ROE uses net income over average equity; ROCE uses EBIT over average capital employed; "
+            + "P/E uses trailing PE when available, otherwise forward PE."
         )
 
     return metrics, status
@@ -144,6 +168,10 @@ def fetch_experimental_fundamentals(ticker: str) -> tuple[dict[str, object], str
         yf_ticker = yf.Ticker(normalized)
         income_stmt = yf_ticker.income_stmt
         balance_sheet = yf_ticker.balance_sheet
-        return build_experimental_fundamentals_from_frames(income_stmt, balance_sheet)
+        try:
+            quote_info = yf_ticker.info
+        except Exception:
+            quote_info = {}
+        return build_experimental_fundamentals_from_frames(income_stmt, balance_sheet, quote_info)
     except Exception as exc:
         return {}, f"Experimental fundamentals via yfinance failed: {exc}"

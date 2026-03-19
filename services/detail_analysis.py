@@ -49,10 +49,11 @@ def analyze_price_history(hist: pd.DataFrame | None) -> dict[str, object]:
     volume = pd.to_numeric(df.get("Volume"), errors="coerce") if "Volume" in df.columns else None
     adj_close = pd.to_numeric(df.get("Adj_Close"), errors="coerce") if "Adj_Close" in df.columns else close
 
-    df["RSI"] = compute_rsi(close)
-    df["DMA50"] = close.rolling(min(50, len(df))).mean()
-    df["DMA200"] = close.rolling(min(200, len(df))).mean()
-    _, _, hist_series = compute_macd(close)
+    indicator_series = adj_close
+    df["RSI"] = compute_rsi(indicator_series)
+    df["DMA50"] = indicator_series.rolling(min(50, len(df))).mean()
+    df["DMA200"] = indicator_series.rolling(min(200, len(df))).mean()
+    _, _, hist_series = compute_macd(indicator_series)
     df["MACD_HIST"] = hist_series
     if volume is not None:
         df["AVG_VOL_20"] = volume.rolling(20).mean()
@@ -166,6 +167,7 @@ def build_fundamental_snapshot(row: pd.Series) -> tuple[dict[str, object], str]:
         "Operating Margin": ["OPM", "Operating_Margin", "Operating_Margin_%"],
         "Sales Growth": ["Sales_Growth", "Sales_Growth_%"],
         "Profit Growth": ["Profit_Growth", "Profit_Growth_%"],
+        "P/E Ratio": ["P/E Ratio", "PE_Ratio", "P/E", "PE", "Trailing_PE", "Forward_PE"],
     }
 
     fundamentals: dict[str, object] = {}
