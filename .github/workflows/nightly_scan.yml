@@ -30,6 +30,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add latest_scan_nifty50.csv latest_scan_niftynext50.csv price_cache_nifty50.csv price_cache_niftynext50.csv snapshot_meta_nifty50.json snapshot_meta_niftynext50.json fundamentals_cache_nifty50.json fundamentals_cache_niftynext50.json
+          git add -f latest_scan_nifty50.csv latest_scan_niftynext50.csv price_cache_nifty50.csv price_cache_niftynext50.csv snapshot_meta_nifty50.json snapshot_meta_niftynext50.json fundamentals_cache_nifty50.json fundamentals_cache_niftynext50.json
           git commit -m "Nightly market scan update" || echo "No changes to commit"
           git push
