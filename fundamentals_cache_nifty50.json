@@ -1,0 +1,596 @@
+{
+  "version": 1,
+  "universe_key": "nifty50",
+  "provider": "yfinance_experimental",
+  "generated_at": "2026-03-19T19:14:45.650789+00:00",
+  "tickers": {
+    "AXISBANK.NS": {
+      "metrics": {
+        "ROE": 16.29883848210683,
+        "ROCE": null,
+        "Debt / Equity": 1.1786587574823555,
+        "Operating Margin": null,
+        "Sales Growth": 10.819152869128953,
+        "Profit Growth": 6.324935003903557,
+        "P/E Ratio": 14.331512
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ADANIENT.NS": {
+      "metrics": {
+        "ROE": 15.532688981302842,
+        "ROCE": 14.244556266073266,
+        "Debt / Equity": 1.8249239724076634,
+        "Operating Margin": 10.687723439347922,
+        "Sales Growth": 1.4482825569751283,
+        "Profit Growth": 123.55558990410316,
+        "P/E Ratio": 17.511755
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ASIANPAINT.NS": {
+      "metrics": {
+        "ROE": 19.236358686543863,
+        "ROCE": 26.584652983864938,
+        "Debt / Equity": 0.11805734179870833,
+        "Operating Margin": 14.749918453759067,
+        "Sales Growth": -4.464560669148721,
+        "Profit Growth": -32.837444576510514,
+        "P/E Ratio": 54.5954
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ADANIPORTS.NS": {
+      "metrics": {
+        "ROE": 19.22741310117788,
+        "ROCE": 15.171419236685404,
+        "Debt / Equity": 0.8217265880776912,
+        "Operating Margin": 46.32720958230805,
+        "Sales Growth": 14.09468764413775,
+        "Profit Growth": 36.762450312182516,
+        "P/E Ratio": 23.476456
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "BAJAJ-AUTO.NS": {
+      "metrics": {
+        "ROE": 22.83584939630856,
+        "ROCE": 28.234471237696972,
+        "Debt / Equity": 0.26248510176834977,
+        "Operating Margin": 20.41541033086075,
+        "Sales Growth": 12.527659718313977,
+        "Profit Growth": -4.975325106639129,
+        "P/E Ratio": 27.888365
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "APOLLOHOSP.NS": {
+      "metrics": {
+        "ROE": 19.090687034995412,
+        "ROCE": 23.288883002123967,
+        "Debt / Equity": 0.6598882164558041,
+        "Operating Margin": 10.547146551484424,
+        "Sales Growth": 14.394320947074323,
+        "Profit Growth": 60.905853549966615,
+        "P/E Ratio": 57.780254
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "BAJAJFINSV.NS": {
+      "metrics": {
+        "ROE": 13.369570958304204,
+        "ROCE": 14.945272531790602,
+        "Debt / Equity": 3.9291429237612214,
+        "Operating Margin": 39.654201316781375,
+        "Sales Growth": 21.33800066419657,
+        "Profit Growth": 8.892227217441786,
+        "P/E Ratio": 28.653301
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "BAJFINANCE.NS": {
+      "metrics": {
+        "ROE": 19.191407582360558,
+        "ROCE": null,
+        "Debt / Equity": 2.8477813307227304,
+        "Operating Margin": null,
+        "Sales Growth": 23.393157204151215,
+        "Profit Growth": 15.131300787410293,
+        "P/E Ratio": 28.736189
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "BEL.NS": {
+      "metrics": {
+        "ROE": 29.318937883811618,
+        "ROCE": 39.16429478936297,
+        "Debt / Equity": 0.003065502012877812,
+        "Operating Margin": 28.228945421826946,
+        "Sales Growth": 16.13529734761616,
+        "Profit Growth": 33.55284952767209,
+        "P/E Ratio": 52.92383
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "BHARTIARTL.NS": {
+      "metrics": {
+        "ROE": 34.29503803706563,
+        "ROCE": 22.589392028343312,
+        "Debt / Equity": 1.879462734413694,
+        "Operating Margin": 27.94262168092993,
+        "Sales Growth": 15.33699954127951,
+        "Profit Growth": 349.39199142895404,
+        "P/E Ratio": 36.071075
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "CIPLA.NS": {
+      "metrics": {
+        "ROE": 18.212542063990462,
+        "ROCE": 23.57468363124367,
+        "Debt / Equity": 0.014047500356645386,
+        "Operating Margin": 22.634479506656746,
+        "Sales Growth": 6.675815225827546,
+        "Profit Growth": 27.925659036042266,
+        "P/E Ratio": 22.053745
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "COALINDIA.NS": {
+      "metrics": {
+        "ROE": 38.89044280327133,
+        "ROCE": 48.342026670575336,
+        "Debt / Equity": 0.09228330944619097,
+        "Operating Margin": 31.737095541304917,
+        "Sales Growth": -2.207793056052749,
+        "Profit Growth": -5.465253598108565,
+        "P/E Ratio": 9.378485
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "DRREDDY.NS": {
+      "metrics": {
+        "ROE": 18.42010105254928,
+        "ROCE": 23.683560759535094,
+        "Debt / Equity": 0.14027499490083625,
+        "Operating Margin": 22.121738061959544,
+        "Sales Growth": 16.610666131736185,
+        "Profit Growth": 1.5444292795057828,
+        "P/E Ratio": 18.784082
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ETERNAL.NS": {
+      "metrics": {
+        "ROE": 2.0776660753006113,
+        "ROCE": 3.343189434259807,
+        "Debt / Equity": 0.06745390375037108,
+        "Operating Margin": 0.04939979252087141,
+        "Sales Growth": 67.10417698530625,
+        "Profit Growth": 50.142450142450144,
+        "P/E Ratio": 953.0834
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "GRASIM.NS": {
+      "metrics": {
+        "ROE": 3.9811426232140317,
+        "ROCE": 5.3860601307939335,
+        "Debt / Equity": 1.9107376809354355,
+        "Operating Margin": 8.205654272196568,
+        "Sales Growth": 13.58188441028253,
+        "Profit Growth": -34.11527089567232,
+        "P/E Ratio": 39.087227
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "EICHERMOT.NS": {
+      "metrics": {
+        "ROE": 24.06810834827495,
+        "ROCE": 30.024067252915764,
+        "Debt / Equity": 0.02151199563871793,
+        "Operating Margin": 21.595234922897085,
+        "Sales Growth": 14.193588525824163,
+        "Profit Growth": 18.33112139184856,
+        "P/E Ratio": 34.896744
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "HCLTECH.NS": {
+      "metrics": {
+        "ROE": 25.217883089951997,
+        "ROCE": 33.54169736002077,
+        "Debt / Equity": 0.09014428253535281,
+        "Operating Margin": 31.251975567041136,
+        "Sales Growth": 6.497866494409214,
+        "Profit Growth": 10.750222901541205,
+        "P/E Ratio": 21.621891
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "HDFCBANK.NS": {
+      "metrics": {
+        "ROE": 9.21086191626181,
+        "ROCE": null,
+        "Debt / Equity": 0.9543063355044986,
+        "Operating Margin": null,
+        "Sales Growth": 19.35513922126162,
+        "Profit Growth": 8.166893276325988,
+        "P/E Ratio": 17.797102
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "HDFCLIFE.NS": {
+      "metrics": {
+        "ROE": 11.75057493342193,
+        "ROCE": 11.634413334193525,
+        "Debt / Equity": 0.18261029971611836,
+        "Operating Margin": 2.2425035692266766,
+        "Sales Growth": -6.005576724735025,
+        "Profit Growth": 15.039896320390323,
+        "P/E Ratio": 72.4
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "HINDALCO.NS": {
+      "metrics": {
+        "ROE": 13.922690391768725,
+        "ROCE": 14.823542321831312,
+        "Debt / Equity": 0.5167691922172194,
+        "Operating Margin": 10.747525546151834,
+        "Sales Growth": 10.341841746311806,
+        "Profit Growth": 57.567700640078776,
+        "P/E Ratio": 12.405615
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "HINDUNILVR.NS": {
+      "metrics": {
+        "ROE": 21.16676605048698,
+        "ROCE": 29.433392292863246,
+        "Debt / Equity": 0.03335897332091818,
+        "Operating Margin": 21.667094785512457,
+        "Sales Growth": 2.1684217432667388,
+        "Profit Growth": 3.6197333852291527,
+        "P/E Ratio": 48.163692
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ICICIBANK.NS": {
+      "metrics": {
+        "ROE": 17.90341854636686,
+        "ROCE": null,
+        "Debt / Equity": 0.6487604844081014,
+        "Operating Margin": null,
+        "Sales Growth": 26.98654911125621,
+        "Profit Growth": 15.303608191032644,
+        "P/E Ratio": 17.070871
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "INDIGO.NS": {
+      "metrics": {
+        "ROE": 127.73588392126496,
+        "ROCE": 168.3456868839829,
+        "Debt / Equity": 7.131551418628979,
+        "Operating Margin": 14.288843138113801,
+        "Sales Growth": 15.183685825710674,
+        "Profit Growth": -11.185071887427348,
+        "P/E Ratio": 50.142426
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "INFY.NS": {
+      "metrics": {
+        "ROE": 29.02040066164308,
+        "ROCE": 41.31593457085095,
+        "Debt / Equity": 0.08585452922802321,
+        "Operating Margin": 21.149556466255124,
+        "Sales Growth": 3.8519556082318718,
+        "Profit Growth": -0.2841806125670982,
+        "P/E Ratio": 17.175014
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ITC.NS": {
+      "metrics": {
+        "ROE": 48.07989370199544,
+        "ROCE": 37.29530499095722,
+        "Debt / Equity": 0.004067396781810094,
+        "Operating Margin": 32.40730619884019,
+        "Sales Growth": 10.776328722631376,
+        "Profit Growth": 69.83725324774987,
+        "P/E Ratio": 18.315918
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "JSWSTEEL.NS": {
+      "metrics": {
+        "ROE": 4.459008048865842,
+        "ROCE": 6.8685110087262995,
+        "Debt / Equity": 1.4997232565160512,
+        "Operating Margin": 8.4994747110911,
+        "Sales Growth": -3.4840197464481886,
+        "Profit Growth": -60.23604176123468,
+        "P/E Ratio": 37.139572
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "JIOFIN.NS": {
+      "metrics": {
+        "ROE": 1.2279657649306688,
+        "ROCE": 1.466208861473321,
+        "Debt / Equity": 0.032146667835930856,
+        "Operating Margin": 87.72441535116039,
+        "Sales Growth": 15.10251153254741,
+        "Profit Growth": 0.501075067776012,
+        "P/E Ratio": 94.64427
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "KOTAKBANK.NS": {
+      "metrics": {
+        "ROE": 15.394079152704714,
+        "ROCE": null,
+        "Debt / Equity": 0.550837466217033,
+        "Operating Margin": null,
+        "Sales Growth": 9.495834795939219,
+        "Profit Growth": 21.740606447424167,
+        "P/E Ratio": 19.458244
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "LT.NS": {
+      "metrics": {
+        "ROE": 16.343366654558945,
+        "ROCE": 12.5859458046212,
+        "Debt / Equity": 1.3558763655130888,
+        "Operating Margin": 10.429381533633887,
+        "Sales Growth": 16.01572210552334,
+        "Profit Growth": 15.14651457871172,
+        "P/E Ratio": 26.890854
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "MARUTI.NS": {
+      "metrics": {
+        "ROE": 15.945158209526387,
+        "ROCE": 21.78473852310771,
+        "Debt / Equity": 0.0009039909642466379,
+        "Operating Margin": 9.83131324227666,
+        "Sales Growth": 8.048427725488299,
+        "Profit Growth": 7.502854346762355,
+        "P/E Ratio": 26.527002
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "M&M.NS": {
+      "metrics": {
+        "ROE": 18.05369441932352,
+        "ROCE": 15.197489243838758,
+        "Debt / Equity": 1.6218997788908092,
+        "Operating Margin": 15.790554752518643,
+        "Sales Growth": 14.611036292783746,
+        "Profit Growth": 14.735229805903819,
+        "P/E Ratio": 21.777746
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "NESTLEIND.NS": {
+      "metrics": {
+        "ROE": 99.16220719759853,
+        "ROCE": 122.77081107166248,
+        "Debt / Equity": 0.29096979958655533,
+        "Operating Margin": 21.256481135599554,
+        "Sales Growth": 19.583454688725652,
+        "Profit Growth": 34.17959272459549,
+        "P/E Ratio": 70.32009
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "NTPC.NS": {
+      "metrics": {
+        "ROE": 13.586884847263518,
+        "ROCE": 9.932868287893879,
+        "Debt / Equity": 1.3586927468702865,
+        "Operating Margin": 19.51188278958637,
+        "Sales Growth": 5.3908222183152175,
+        "Profit Growth": 12.543646924906868,
+        "P/E Ratio": 20.67717
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "MAXHEALTH.NS": {
+      "metrics": {
+        "ROE": 12.096007591203781,
+        "ROCE": 14.518180634241498,
+        "Debt / Equity": 0.32089667589466647,
+        "Operating Margin": 22.809954908282638,
+        "Sales Growth": 30.151351921468766,
+        "Profit Growth": 1.7245943799402443,
+        "P/E Ratio": 65.73103
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ONGC.NS": {
+      "metrics": {
+        "ROE": 10.615421720990572,
+        "ROCE": 12.928407447901908,
+        "Debt / Equity": 0.5468700258847766,
+        "Operating Margin": 10.447914851984905,
+        "Sales Growth": 1.7216672995161049,
+        "Profit Growth": -26.286672741612055,
+        "P/E Ratio": 8.898809
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "POWERGRID.NS": {
+      "metrics": {
+        "ROE": 17.264467549594034,
+        "ROCE": 12.564931952089376,
+        "Debt / Equity": 1.4516903815025683,
+        "Operating Margin": 59.35894422243864,
+        "Sales Growth": -0.2937147575659885,
+        "Profit Growth": -0.332109860811807,
+        "P/E Ratio": 19.055878
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "SBILIFE.NS": {
+      "metrics": {
+        "ROE": 15.13329660740875,
+        "ROCE": 15.715288592712529,
+        "Debt / Equity": null,
+        "Operating Margin": 2.1714381767305,
+        "Sales Growth": -11.848801716028559,
+        "Profit Growth": 27.43296475831406,
+        "P/E Ratio": 76.95512
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "RELIANCE.NS": {
+      "metrics": {
+        "ROE": 8.510882694917337,
+        "ROCE": 11.099806698882075,
+        "Debt / Equity": 0.43830052182163187,
+        "Operating Margin": 11.65780201577082,
+        "Sales Growth": 7.0615405786936325,
+        "Profit Growth": 0.03878140216314043,
+        "P/E Ratio": 22.506096
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "SHRIRAMFIN.NS": {
+      "metrics": {
+        "ROE": 18.125777507865433,
+        "ROCE": null,
+        "Debt / Equity": 3.166996105176181,
+        "Operating Margin": null,
+        "Sales Growth": 16.26963748598258,
+        "Profit Growth": 29.69491120468941,
+        "P/E Ratio": 19.531153
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "SBIN.NS": {
+      "metrics": {
+        "ROE": 17.198094650441924,
+        "ROCE": null,
+        "Debt / Equity": 1.2691556209225405,
+        "Operating Margin": null,
+        "Sales Growth": 8.006437186261335,
+        "Profit Growth": 15.61708749415688,
+        "P/E Ratio": 11.413493
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "SUNPHARMA.NS": {
+      "metrics": {
+        "ROE": 16.085746769119158,
+        "ROCE": 19.89115369698554,
+        "Debt / Equity": 0.03270914932311908,
+        "Operating Margin": 24.175437753704994,
+        "Sales Growth": 8.96762771823625,
+        "Profit Growth": 14.124961624329863,
+        "P/E Ratio": 38.321617
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "TCS.NS": {
+      "metrics": {
+        "ROE": 52.42030824043834,
+        "ROCE": 71.39409970579503,
+        "Debt / Equity": 0.09911773396935286,
+        "Operating Margin": 24.397628111732544,
+        "Sales Growth": 5.9906265437351855,
+        "Profit Growth": 5.761523046092185,
+        "P/E Ratio": 17.875568
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "TATACONSUM.NS": {
+      "metrics": {
+        "ROE": 7.091211987840658,
+        "ROCE": 10.11615900688124,
+        "Debt / Equity": 0.11962754011283391,
+        "Operating Margin": 10.736326142693711,
+        "Sales Growth": 15.96117762613662,
+        "Profit Growth": 11.13941216868203,
+        "P/E Ratio": 70.39083
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "TATASTEEL.NS": {
+      "metrics": {
+        "ROE": 3.7340713611100633,
+        "ROCE": 8.906926585596915,
+        "Debt / Equity": 1.0398314658071992,
+        "Operating Margin": 6.667389164424425,
+        "Sales Growth": -4.600098901785424,
+        "Profit Growth": 177.08295774140043,
+        "P/E Ratio": 0.30142555
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "TECHM.NS": {
+      "metrics": {
+        "ROE": 15.737291068629247,
+        "ROCE": 21.326247070938173,
+        "Debt / Equity": 0.07401640991904683,
+        "Operating Margin": 9.752152833738768,
+        "Sales Growth": 1.9092000092315504,
+        "Profit Growth": 80.31639664093647,
+        "P/E Ratio": 25.741165
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "TITAN.NS": {
+      "metrics": {
+        "ROE": 31.755245753437695,
+        "ROCE": 20.98982635967261,
+        "Debt / Equity": 1.7874225739848588,
+        "Operating Margin": 8.305416431722445,
+        "Sales Growth": 18.379927752473694,
+        "Profit Growth": -4.548054919908466,
+        "P/E Ratio": 74.92856
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "TRENT.NS": {
+      "metrics": {
+        "ROE": 32.46179224889501,
+        "ROCE": 41.19465310945699,
+        "Debt / Equity": 0.4096112227971306,
+        "Operating Margin": 11.283759597765046,
+        "Sales Growth": 38.249008013725174,
+        "Profit Growth": 4.0301318267419965,
+        "P/E Ratio": 75.3006
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "ULTRACEMCO.NS": {
+      "metrics": {
+        "ROE": 9.224645194057322,
+        "ROCE": 11.145595650114393,
+        "Debt / Equity": 0.3408751382646952,
+        "Operating Margin": 11.240871431726482,
+        "Sales Growth": 7.3441548739835385,
+        "Profit Growth": -13.788579586009995,
+        "P/E Ratio": 41.444065
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    },
+    "WIPRO.NS": {
+      "metrics": {
+        "ROE": 16.646136845200076,
+        "ROCE": 19.580807611049842,
+        "Debt / Equity": 0.23183980857385347,
+        "Operating Margin": 16.914211053290888,
+        "Sales Growth": -0.7485491915691013,
+        "Profit Growth": 18.924057509144244,
+        "P/E Ratio": 14.917657
+      },
+      "status": "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary. As of 2025-03-31. ROE uses net income over average equity; ROCE uses EBIT over average capital employed; P/E uses trailing PE when available, otherwise forward PE."
+    }
+  }
+}
