@@ -480,6 +480,7 @@ def render_custom_tab():
                         custom_tickers=tickers_input,
                         max_workers=10,
                         batch_size=10,
+                        use_cache=False,
                     )
                     if df_result.empty:
                         clear_custom_results()

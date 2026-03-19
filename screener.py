@@ -923,7 +923,15 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
         round(ret_pct, 2)
     ]
 
-def run_screener(strategy, universe, custom_tickers, prev_close_map=None, max_workers=10, batch_size=50):
+def run_screener(
+    strategy,
+    universe,
+    custom_tickers,
+    prev_close_map=None,
+    max_workers=10,
+    batch_size=50,
+    use_cache=True,
+):
     tickers_dict = parse_universe(universe, custom_tickers)
     ticker_symbols = list(tickers_dict.values())
     symbol_to_name = {symbol: name for name, symbol in tickers_dict.items()}
@@ -946,7 +954,7 @@ def run_screener(strategy, universe, custom_tickers, prev_close_map=None, max_wo
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit batch download tasks
         futures = {
-            executor.submit(download_price_batch, batch, 1, universe, True, cache_df): idx
+            executor.submit(download_price_batch, batch, 1, universe, use_cache, cache_df): idx
             for idx, batch in enumerate(batches)
         }
 

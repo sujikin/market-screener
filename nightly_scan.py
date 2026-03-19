@@ -64,7 +64,8 @@ def main():
             strategy="contra",
             universe="nifty50",
             custom_tickers="",
-            prev_close_map=prev_close_nifty50
+            prev_close_map=prev_close_nifty50,
+            use_cache=False,
         )
 
         if df_nifty50.empty:
@@ -90,7 +91,8 @@ def main():
             strategy="contra",
             universe="niftynext50",
             custom_tickers="",
-            prev_close_map=prev_close_niftynext50
+            prev_close_map=prev_close_niftynext50,
+            use_cache=False,
         )
 
         if df_niftynext50.empty:
