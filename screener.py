@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pandas as pd
 import yfinance as yf
 import requests
@@ -8,9 +10,22 @@ import os
 import logging
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
+from _thread import LockType
 from threading import Lock
+from typing import IO, Any, Iterator
 
 from app_utils import is_valid_ticker, normalize_ticker
+
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+
+try:
+    import msvcrt
+except ImportError:
+    msvcrt = None
 
 # Configure logging
 logging.basicConfig(
@@ -32,16 +47,65 @@ if not has_console_handler:
     root_logger.addHandler(console)
 
 # Locks for thread-safe cache writes
-cache_locks = {}  # universe -> Lock mapping
-
-def get_cache_lock(universe):
-    """Get or create a lock for a universe's cache file."""
-    if universe not in cache_locks:
-        cache_locks[universe] = Lock()
-    return cache_locks[universe]
+cache_locks: dict[str, LockType] = {}  # universe -> Lock mapping
+cache_locks_guard: LockType = Lock()
 
 
-def _sanitize_cache_df(cache_df):
+def _cache_file_path(universe: str) -> str:
+    return f"price_cache_{universe}.csv"
+
+
+def _cache_lock_file_path(universe: str) -> str:
+    return f"{_cache_file_path(universe)}.lock"
+
+
+def get_cache_lock(universe: str) -> LockType:
+    """Get or create a per-process lock for a universe cache file."""
+    with cache_locks_guard:
+        if universe not in cache_locks:
+            cache_locks[universe] = Lock()
+        return cache_locks[universe]
+
+
+def _lock_file_handle(handle: IO[bytes]) -> None:
+    handle.seek(0)
+    if msvcrt is not None:
+        msvcrt.locking(handle.fileno(), msvcrt.LK_LOCK, 1)
+        return
+    if fcntl is not None:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        return
+    raise RuntimeError("No file locking implementation is available on this platform.")
+
+
+def _unlock_file_handle(handle: IO[bytes]) -> None:
+    handle.seek(0)
+    if msvcrt is not None:
+        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        return
+    if fcntl is not None:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
+@contextmanager
+def _cache_write_lock(universe: str) -> Iterator[None]:
+    """Serialize cache writes across both threads and local processes."""
+    with get_cache_lock(universe):
+        lock_path = _cache_lock_file_path(universe)
+        with open(lock_path, "a+b") as lock_file:
+            lock_file.seek(0)
+            if lock_file.read(1) == b"":
+                lock_file.seek(0)
+                lock_file.write(b"\0")
+                lock_file.flush()
+            _lock_file_handle(lock_file)
+            try:
+                yield
+            finally:
+                _unlock_file_handle(lock_file)
+
+
+def _sanitize_cache_df(cache_df: pd.DataFrame | None) -> pd.DataFrame | None:
     if cache_df is None or cache_df.empty or "Ticker" not in cache_df.columns:
         return cache_df
 
@@ -62,10 +126,29 @@ OVERSOLD_RSI = 30
 VOLUME_SPIKE_MULT = 1.5
 MAX_DAILY_MOVE = 0.2
 YF_DOWNLOAD_TIMEOUT_SECONDS = 30
+MAX_CACHE_AGE_TRADING_DAYS = 5
+
+
+def _business_days_since(last_date: pd.Timestamp) -> int:
+    timestamp = pd.Timestamp(last_date)
+    if timestamp.tzinfo is not None:
+        timestamp = timestamp.tz_convert(None)
+    timestamp = timestamp.normalize()
+    today = pd.Timestamp.now().normalize()
+    if timestamp >= today:
+        return 0
+    return len(pd.bdate_range(timestamp + pd.Timedelta(days=1), today))
+
+
+def _is_cache_fresh(
+    last_date: pd.Timestamp,
+    max_age_trading_days: int = MAX_CACHE_AGE_TRADING_DAYS,
+) -> bool:
+    return _business_days_since(last_date) < max_age_trading_days
 
 # ---------------- INDICATORS ----------------
 
-def compute_rsi(series, period=RSI_PERIOD):
+def compute_rsi(series: pd.Series, period: int = RSI_PERIOD) -> pd.Series:
     delta = series.diff()
     gain = delta.clip(lower=0)
     loss = -delta.clip(upper=0)
@@ -74,7 +157,12 @@ def compute_rsi(series, period=RSI_PERIOD):
     rs = gain / (loss + 1e-10)
     return 100 - (100 / (1 + rs))
 
-def compute_macd(series, fast=12, slow=26, signal=9):
+def compute_macd(
+    series: pd.Series,
+    fast: int = 12,
+    slow: int = 26,
+    signal: int = 9,
+) -> tuple[pd.Series, pd.Series, pd.Series]:
     ema_fast = series.ewm(span=fast, adjust=False).mean()
     ema_slow = series.ewm(span=slow, adjust=False).mean()
     macd = ema_fast - ema_slow
@@ -84,7 +172,17 @@ def compute_macd(series, fast=12, slow=26, signal=9):
 
 # ---------------- DATA FETCH ----------------
 
-def extract_series(raw):
+def extract_series(
+    raw: pd.DataFrame,
+) -> tuple[
+    pd.Series | None,
+    pd.Series | None,
+    pd.Series | None,
+    pd.Series | None,
+    pd.Series | None,
+    pd.Series | None,
+    pd.Series | None,
+]:
     """Extract OHLCV series from yfinance data. Returns 7 values for candlestick support."""
     if isinstance(raw.columns, pd.MultiIndex):
         cols = raw.columns.get_level_values(0)
@@ -120,7 +218,15 @@ def extract_series(raw):
 
     return open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series
 
-def build_price_df(open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series):
+def build_price_df(
+    open_series: pd.Series | None,
+    high_series: pd.Series | None,
+    low_series: pd.Series | None,
+    close_series: pd.Series,
+    adj_close_series: pd.Series,
+    volume_series: pd.Series,
+    split_series: pd.Series | None,
+) -> pd.DataFrame:
     """Build price DataFrame with OHLCV data for candlestick charting support."""
     df_data = {
         "Close": close_series,
@@ -145,9 +251,9 @@ def build_price_df(open_series, high_series, low_series, close_series, adj_close
 
     return df.dropna()
 
-def load_price_df_from_cache(ticker, universe):
+def load_price_df_from_cache(ticker: str, universe: str) -> pd.DataFrame | None:
     """Load price data from cache CSV file"""
-    cache_file = f"price_cache_{universe}.csv"
+    cache_file = _cache_file_path(universe)
     if not os.path.exists(cache_file):
         return None
 
@@ -199,17 +305,16 @@ def load_price_df_from_cache(ticker, universe):
         logging.warning(f"Failed to load cache for {ticker}: {e}")
         return None
 
-def save_price_df_to_cache(ticker, df, universe):
+def save_price_df_to_cache(ticker: str, df: pd.DataFrame, universe: str) -> None:
     """Save price data to cache CSV file using atomic write with thread safety"""
-    cache_file = f"price_cache_{universe}.csv"
-    cache_lock = get_cache_lock(universe)
+    cache_file = _cache_file_path(universe)
     ticker = normalize_ticker(ticker)
     if not is_valid_ticker(ticker):
         logging.warning(f"Skipping cache write for invalid ticker: {ticker}")
         return
     
     try:
-        with cache_lock:
+        with _cache_write_lock(universe):
             # Reset index to make Date a column
             df_to_save = df.reset_index()
             df_to_save["Date"] = pd.to_datetime(df_to_save["Date"]).dt.strftime("%Y-%m-%d")
@@ -251,10 +356,8 @@ def save_price_df_to_cache(ticker, df, universe):
             # Use atomic write: write to temp file first, then rename
             temp_file = cache_file + ".tmp"
             cache_df.to_csv(temp_file, index=False)
-            # Atomic rename (overwrites destination)
-            if os.path.exists(cache_file):
-                os.remove(cache_file)
-            os.rename(temp_file, cache_file)
+            # Atomic replace on the destination path.
+            os.replace(temp_file, cache_file)
     except Exception as e:
         logging.warning(f"Failed to save cache for {ticker}: {e}")
         # Clean up temp file if it exists
@@ -265,9 +368,9 @@ def save_price_df_to_cache(ticker, df, universe):
         except Exception:
             pass
 
-def load_full_cache(universe):
+def load_full_cache(universe: str) -> pd.DataFrame | None:
     """Load the entire price cache CSV into memory once."""
-    cache_file = f"price_cache_{universe}.csv"
+    cache_file = _cache_file_path(universe)
     if not os.path.exists(cache_file):
         return None
     try:
@@ -295,7 +398,7 @@ def load_full_cache(universe):
         cache_df = cache_df.rename(columns={"Adj Close": "Adj_Close"})
     return cache_df
 
-def _lookup_ticker_in_cache(ticker, full_cache_df):
+def _lookup_ticker_in_cache(ticker: str, full_cache_df: pd.DataFrame | None) -> pd.DataFrame | None:
     """Look up a single ticker from an already-loaded cache DataFrame."""
     if full_cache_df is None or full_cache_df.empty:
         return None
@@ -320,13 +423,16 @@ def _lookup_ticker_in_cache(ticker, full_cache_df):
     ticker_data = ticker_data.drop(columns=["Ticker"], errors="ignore")
     return ticker_data
 
-def save_cache_bulk(new_data, universe, existing_cache_df=None):
+def save_cache_bulk(
+    new_data: dict[str, pd.DataFrame],
+    universe: str,
+    existing_cache_df: pd.DataFrame | None = None,
+) -> None:
     """Save multiple tickers' price data to cache in a single write using atomic operation."""
-    cache_file = f"price_cache_{universe}.csv"
-    cache_lock = get_cache_lock(universe)
+    cache_file = _cache_file_path(universe)
     
     try:
-        with cache_lock:
+        with _cache_write_lock(universe):
             valid_new_tickers = {
                 normalize_ticker(ticker)
                 for ticker in new_data.keys()
@@ -367,10 +473,8 @@ def save_cache_bulk(new_data, universe, existing_cache_df=None):
             # Use atomic write: write to temp file first, then rename
             temp_file = cache_file + ".tmp"
             cache_df.to_csv(temp_file, index=False)
-            # Atomic rename (overwrites destination)
-            if os.path.exists(cache_file):
-                os.remove(cache_file)
-            os.rename(temp_file, cache_file)
+            # Atomic replace on the destination path.
+            os.replace(temp_file, cache_file)
     except Exception as e:
         logging.warning(f"Failed to save bulk cache: {e}")
         # Clean up temp file if it exists
@@ -381,17 +485,23 @@ def save_cache_bulk(new_data, universe, existing_cache_df=None):
         except Exception:
             pass
 
-def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cache_df=None):
+def download_price_batch(
+    tickers: list[str],
+    retries: int = 1,
+    universe: str | None = None,
+    use_cache: bool = True,
+    cache_df: pd.DataFrame | None = None,
+) -> dict[str, pd.DataFrame]:
     """Download multiple tickers in a single batch call for efficiency.
     
     If a ticker fails (no data found), automatically retry with alternate exchange suffix:
     - tickers without suffix or with .NS will retry with .BO
     - tickers with .BO will retry with .NS
     """
-    results = {}  # ticker -> DataFrame mapping
+    results: dict[str, pd.DataFrame] = {}
     
     # Try cache first for all tickers
-    tickers_to_fetch = []
+    tickers_to_fetch: list[str] = []
     for ticker in tickers:
         if use_cache:
             if cache_df is not None:
@@ -401,9 +511,9 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
             else:
                 cached = None
             if cached is not None and len(cached) >= 2:
-                # Check for stale cache (older than 5 days)
+                # Check cache age using business days so weekends do not force refreshes.
                 last_date = cached.index[-1]
-                if (pd.Timestamp.now() - last_date).days < 5:
+                if _is_cache_fresh(last_date):
                     results[ticker] = cached
                     continue
                 # If stale, fall through to fetch logic (treat as cache miss)
@@ -412,13 +522,15 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
     if not tickers_to_fetch:
         return results
     
-    tickers_needing_retry = set(tickers_to_fetch)  # Track tickers that need alternate suffix retry
-    
+    pending_tickers = list(tickers_to_fetch)
+
     for attempt in range(retries + 1):
+        if not pending_tickers:
+            break
         try:
-            # Download all tickers in batch (much faster than individual calls)
+            # Retry only unresolved tickers on subsequent attempts.
             raw = yf.download(
-                tickers_to_fetch,
+                pending_tickers,
                 period=LOOKBACK_PERIOD,
                 interval="1d",
                 actions=True,
@@ -434,17 +546,12 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
             logging.warning(f"Batch download returned empty result for attempt {attempt}")
             continue
         
-        # Clear tickers that we're about to process (they don't need retry if they succeed)
-        tickers_that_succeeded_this_attempt = set()
-        
+        retry_tickers: list[str] = []
+
         # Process each ticker from the batch result
-        for ticker in list(tickers_to_fetch):  # Use list() to avoid modification during iteration
-            if ticker in results:
-                tickers_needing_retry.discard(ticker)  # Don't retry if we already have it
-                continue  # Skip tickers that already succeeded
-                
+        for ticker in pending_tickers:
             try:
-                if len(tickers_to_fetch) == 1:
+                if len(pending_tickers) == 1:
                     ticker_data = raw
                 else:
                     # Multi-ticker batch: extract this ticker's columns
@@ -452,20 +559,24 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                         ticker_data = raw[raw.columns[raw.columns.get_level_values(1) == ticker]]
                     except (KeyError, IndexError, AttributeError):
                         logging.debug(f"Failed to extract data for {ticker} from batch result")
+                        retry_tickers.append(ticker)
                         continue
                     
                     if ticker_data.empty:
                         logging.debug(f"No data found for {ticker} in batch")
+                        retry_tickers.append(ticker)
                         continue
                 
                 open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series = extract_series(ticker_data)
                 if close_series is None:
                     logging.debug(f"Failed to extract OHLCV series for {ticker}")
+                    retry_tickers.append(ticker)
                     continue
                 
                 df = build_price_df(open_series, high_series, low_series, close_series, adj_close_series, volume_series, split_series)
                 if len(df) < 2:
                     logging.debug(f"Insufficient data for {ticker} (only {len(df)} rows)")
+                    retry_tickers.append(ticker)
                     continue
                 
                 adj_close = float(df["Adj_Close"].iloc[-1])
@@ -479,6 +590,7 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                 
                 if change_ratio > MAX_DAILY_MOVE and last_split == 0.0 and attempt < retries:
                     logging.debug(f"Large daily move detected for {ticker} ({change_ratio:.2%}), will retry")
+                    retry_tickers.append(ticker)
                     continue
                 
                 # Note: Per-ticker cache saves are skipped because bulk saves happen
@@ -486,15 +598,14 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                 # from concurrent writes to the same cache file.
                 
                 results[ticker] = df
-                tickers_that_succeeded_this_attempt.add(ticker)
-                tickers_needing_retry.discard(ticker)  # Don't retry if we succeeded
             except Exception as e:
                 logging.debug(f"Error processing ticker {ticker} in batch: {e}")
+                retry_tickers.append(ticker)
                 continue
-        
-        # If we got all results, return them
-        if not tickers_needing_retry or len(results) >= len(tickers_to_fetch):
-            break
+
+        pending_tickers = retry_tickers
+
+    tickers_needing_retry = set(pending_tickers)
     
     # ===== RETRY LOGIC: Try alternate suffixes for failed tickers =====
     # If a ticker failed (no data), try with alternate exchange suffix
@@ -564,6 +675,7 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
                             # Store under ORIGINAL ticker name so run_screener can find it
                             original_ticker = alternate_to_original[alt_ticker]
                             results[original_ticker] = df
+                            tickers_needing_retry.discard(original_ticker)
                             logging.info(f"Successfully fetched {original_ticker} using alternate suffix {alt_ticker}")
                         except Exception as e:
                             logging.debug(f"Alternate retry for {alt_ticker} also failed: {e}")
@@ -578,11 +690,16 @@ def download_price_batch(tickers, retries=1, universe=None, use_cache=True, cach
     
     return results
 
-def download_price_df(ticker, retries=1, universe=None, use_cache=True):
+def download_price_df(
+    ticker: str,
+    retries: int = 1,
+    universe: str | None = None,
+    use_cache: bool = True,
+) -> pd.DataFrame | None:
     # Try to load from cache first if use_cache is True
     if use_cache and universe:
         cached_df = load_price_df_from_cache(ticker, universe)
-        if cached_df is not None and len(cached_df) >= 2:
+        if cached_df is not None and len(cached_df) >= 2 and _is_cache_fresh(cached_df.index[-1]):
             return cached_df
     
     for attempt in range(retries + 1):
@@ -630,31 +747,9 @@ def download_price_df(ticker, retries=1, universe=None, use_cache=True):
 
     return None
 
-# ---------------- STRATEGIES ----------------
-
-def contra_strategy(close, rsi, dma50, dma200):
-    if (close < dma50 < dma200) and (rsi < RSI_ATTRACTIVE):
-        return "CONTRA BUY"
-    elif (close > dma200) and (rsi < RSI_ATTRACTIVE):
-        return "BUY"
-    elif (close > dma50 > dma200):
-        return "BUILD"
-    else:
-        return "WAIT"
-
-def reverse_strategy(close, rsi, dma50, dma200):
-    if (close > dma50 > dma200) and (rsi > RSI_OVERBOUGHT):
-        return "SELL"
-    elif (close < dma200) and (rsi > RSI_ATTRACTIVE):
-        return "EXIT"
-    elif (close < dma50 < dma200):
-        return "SHORT"
-    else:
-        return "HOLD"
-
 # ---------------- UNIVERSE ----------------
 
-def load_universe_from_local_scan(which):
+def load_universe_from_local_scan(which: str) -> dict[str, str]:
     """Fallback universe from latest scan CSV when NSE endpoint is unavailable."""
     fallback_file_map = {
         "nifty50": "latest_scan_nifty50.csv",
@@ -674,16 +769,16 @@ def load_universe_from_local_scan(which):
         logging.warning(f"Fallback universe file {fallback_file} is missing 'Ticker' column.")
         return {}
 
-    symbols = {}
+    symbols: dict[str, str] = {}
     if "Stock" in df.columns:
         rows = df.dropna(subset=["Ticker", "Stock"])
-        for _, row in rows.iterrows():
-            ticker = normalize_ticker(row["Ticker"])
+        for ticker_value, stock_value in rows[["Ticker", "Stock"]].itertuples(index=False, name=None):
+            ticker = normalize_ticker(ticker_value)
             if "." not in ticker:
                 ticker = f"{ticker}.NS"
             if not is_valid_ticker(ticker):
                 continue
-            stock_name = str(row["Stock"]).strip() or ticker
+            stock_name = str(stock_value).strip() or ticker
             symbols[stock_name] = ticker
     else:
         tickers = (
@@ -704,7 +799,7 @@ def load_universe_from_local_scan(which):
             symbols[ticker] = ticker
     return symbols
 
-def fetch_nse_universe(which):
+def fetch_nse_universe(which: str) -> dict[str, str]:
     if which == "nifty50":
         url = "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
     elif which == "niftynext50":
@@ -735,10 +830,9 @@ def fetch_nse_universe(which):
         if "Symbol" not in df.columns or "Company Name" not in df.columns:
             raise ValueError("NSE CSV missing expected columns.")
 
-        symbols = {}
-        for _, row in df.iterrows():
-            sym = str(row["Symbol"]).strip().upper()
-            name = row["Company Name"]
+        symbols: dict[str, str] = {}
+        for sym_value, name in df[["Symbol", "Company Name"]].itertuples(index=False, name=None):
+            sym = str(sym_value).strip().upper()
             # Filter out dummy/test tickers that don't have real data
             if sym in ("DUMMYHDLVR", "DUMMYBRLK"):
                 logging.warning(f"Skipping test ticker: {sym}")
@@ -747,7 +841,7 @@ def fetch_nse_universe(which):
             if not is_valid_ticker(ticker):
                 logging.warning(f"Skipping invalid NSE ticker: {ticker}")
                 continue
-            symbols[name] = ticker
+            symbols[str(name).strip() or ticker] = ticker
 
         if symbols:
             return symbols
@@ -767,13 +861,13 @@ def fetch_nse_universe(which):
     finally:
         session.close()
 
-def parse_universe(universe, custom_tickers):
+def parse_universe(universe: str, custom_tickers: str) -> dict[str, str]:
     if universe == "nifty50":
         return fetch_nse_universe("nifty50")
     if universe == "niftynext50":
         return fetch_nse_universe("niftynext50")
     if universe == "custom":
-        tickers = {}
+        tickers: dict[str, str] = {}
         # Basic validation regex or check
         for t in custom_tickers.split(","):
             t = t.strip().upper()
@@ -798,7 +892,13 @@ def parse_universe(universe, custom_tickers):
 
 # ---------------- MAIN SCREENER ----------------
 
-def _process_ticker(name, ticker, df, universe, prev_close_map):
+def _process_ticker(
+    name: str,
+    ticker: str,
+    df: pd.DataFrame | None,
+    universe: str,
+    prev_close_map: dict[str, float] | None,
+) -> list[Any] | None:
     """Process a single ticker with its price DataFrame and return results if applicable"""
     if df is None:
         return None
@@ -923,14 +1023,14 @@ def _process_ticker(name, ticker, df, universe, prev_close_map):
     ]
 
 def run_screener(
-    strategy,
-    universe,
-    custom_tickers,
-    prev_close_map=None,
-    max_workers=10,
-    batch_size=50,
-    use_cache=True,
-):
+    strategy: str,
+    universe: str,
+    custom_tickers: str,
+    prev_close_map: dict[str, float] | None = None,
+    max_workers: int = 10,
+    batch_size: int = 50,
+    use_cache: bool = True,
+) -> pd.DataFrame:
     tickers_dict = parse_universe(universe, custom_tickers)
     ticker_symbols = list(tickers_dict.values())
     symbol_to_name = {symbol: name for name, symbol in tickers_dict.items()}
@@ -940,8 +1040,8 @@ def run_screener(
     else:
         priority = ["SELL", "EXIT", "SHORT", "OVERSOLD", "CONTRA BUY", "BUY", "BUILD", "HOLD"]
 
-    results = []
-    all_price_data = {}  # Collect all DataFrames for bulk cache save
+    results: list[list[Any]] = []
+    all_price_data: dict[str, pd.DataFrame] = {}  # Collect all DataFrames for bulk cache save
 
     # Load price cache once for efficient lookups
     cache_df = load_full_cache(universe)

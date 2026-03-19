@@ -4,5 +4,8 @@ TASK.MD
 ACTION_ITEMS.MD
 tests/
 screener.log
-
-
+price_cache_*.csv
+price_cache_*.csv.lock
+latest_scan_*.csv
+fundamentals_cache_*.json
+snapshot_meta_*.json
