@@ -176,18 +176,28 @@ def build_top_ideas(snapshot: UniverseSnapshot) -> list[dict[str, object]]:
         nonlocal ideas
         if candidates.empty:
             return
-        for _, row in candidates.iterrows():
-            ticker = str(row["Ticker"])
+        if metric_key not in candidates.columns:
+            return
+        for stock, ticker_value, action, metric_value in candidates[["Stock", "Ticker", "Action", metric_key]].itertuples(index=False, name=None):
+            ticker = str(ticker_value)
             if ticker in used_tickers:
                 continue
             used_tickers.add(ticker)
+            if metric_key == "RSI":
+                metric_text = f"RSI {float(metric_value):.1f}"
+            elif metric_key == "Vol_Spike":
+                metric_text = f"Vol {float(metric_value):.2f}x"
+            elif metric_key == "1Y_Return_%":
+                metric_text = f"1Y {float(metric_value):.1f}%"
+            else:
+                metric_text = ""
             ideas.append(
                 {
                     "title": title,
-                    "stock": row["Stock"],
+                    "stock": stock,
                     "ticker": ticker,
-                    "action": row["Action"],
-                    "metric": _row_metric_text(row, metric_key),
+                    "action": action,
+                    "metric": metric_text,
                     "note": fallback_note,
                 }
             )

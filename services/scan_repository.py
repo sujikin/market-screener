@@ -325,8 +325,8 @@ def load_index_snapshot(universe_key: str, base_path: str | Path = ".") -> Unive
     ]
 
     constituent_map = {
-        str(row["Stock"]).strip(): _normalize_ticker(row["Ticker"])
-        for _, row in scan_df[["Stock", "Ticker"]].iterrows()
+        str(stock).strip(): _normalize_ticker(ticker)
+        for stock, ticker in scan_df[["Stock", "Ticker"]].itertuples(index=False, name=None)
     }
     for item in missing_constituents:
         constituent_map.setdefault(item.stock, item.ticker)
