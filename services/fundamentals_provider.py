@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from functools import lru_cache
-
 import pandas as pd
 import yfinance as yf
 
@@ -158,7 +156,6 @@ def build_experimental_fundamentals_from_frames(
     return metrics, status
 
 
-@lru_cache(maxsize=256)
 def fetch_experimental_fundamentals(ticker: str) -> tuple[dict[str, object], str]:
     normalized = str(ticker).strip().upper()
     if not normalized:

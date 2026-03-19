@@ -29,6 +29,7 @@ META_FILE_MAP = {
     "nifty50": "snapshot_meta_nifty50.json",
     "niftynext50": "snapshot_meta_niftynext50.json",
 }
+MAX_SNAPSHOT_AGE_BUSINESS_DAYS = 1
 
 
 def _coerce_base_path(base_path: str | Path = ".") -> Path:
@@ -299,12 +300,20 @@ def _parse_date(value: str | None) -> date | None:
     return date.fromisoformat(value)
 
 
+def _business_days_since(value: date, reference_date: date) -> int:
+    if value >= reference_date:
+        return 0
+    start = pd.Timestamp(value) + pd.Timedelta(days=1)
+    end = pd.Timestamp(reference_date)
+    return len(pd.bdate_range(start, end))
+
+
 def _is_snapshot_stale(market_data_date: date | None, reference_date: date | None = None) -> bool:
     if market_data_date is None:
         return True
     if reference_date is None:
         reference_date = date.today()
-    return (reference_date - market_data_date).days > 3
+    return _business_days_since(market_data_date, reference_date) > MAX_SNAPSHOT_AGE_BUSINESS_DAYS
 
 
 def load_index_snapshot(universe_key: str, base_path: str | Path = ".") -> UniverseSnapshot:

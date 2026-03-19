@@ -143,18 +143,6 @@ def build_overview_cards(snapshot: UniverseSnapshot) -> list[dict[str, object]]:
             "tone": "neutral",
         },
     ]
-
-
-def _row_metric_text(row: pd.Series, metric_key: str) -> str:
-    if metric_key == "RSI":
-        return f"RSI {float(row['RSI']):.1f}"
-    if metric_key == "Vol_Spike":
-        return f"Vol {float(row['Vol_Spike']):.2f}x"
-    if metric_key == "1Y_Return_%":
-        return f"1Y {float(row['1Y_Return_%']):.1f}%"
-    return ""
-
-
 def build_top_ideas(snapshot: UniverseSnapshot) -> list[dict[str, object]]:
     df = snapshot.screened_df.copy()
     if df.empty:

@@ -9,6 +9,7 @@ from io import StringIO
 import os
 import logging
 import re
+import traceback
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from _thread import LockType
@@ -105,9 +106,11 @@ def _cache_write_lock(universe: str) -> Iterator[None]:
                 _unlock_file_handle(lock_file)
 
 
-def _sanitize_cache_df(cache_df: pd.DataFrame | None) -> pd.DataFrame | None:
-    if cache_df is None or cache_df.empty or "Ticker" not in cache_df.columns:
-        return cache_df
+def _sanitize_cache_df(cache_df: pd.DataFrame | None) -> pd.DataFrame:
+    if cache_df is None:
+        return pd.DataFrame()
+    if cache_df.empty or "Ticker" not in cache_df.columns:
+        return cache_df.copy()
 
     cleaned = cache_df.copy()
     cleaned["Ticker"] = cleaned["Ticker"].map(normalize_ticker)
@@ -1072,7 +1075,6 @@ def run_screener(
                     if result:
                         results.append(result)
             except Exception as e:
-                import traceback
                 logging.error(f"Error processing batch result: {e}")
                 logging.error(traceback.format_exc())
                 continue

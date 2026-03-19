@@ -71,7 +71,7 @@ def fetch_chart_data(ticker, universe, cache_version):
     return hist
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=21600)
 def load_experimental_fundamentals(ticker):
     return fetch_experimental_fundamentals(ticker)
 
