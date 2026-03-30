@@ -3,32 +3,40 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-03-27T13:49:48.082966+00:00",
-  "market_data_date": "2026-03-27",
-  "screened_count": 48,
+  "generated_at": "2026-03-30T14:10:13.809540+00:00",
+  "market_data_date": "2026-03-30",
+  "screened_count": 46,
   "constituent_count": 50,
   "action_counts": {
-    "HOLD": 18,
-    "SHORT": 12,
-    "CONTRA BUY": 10,
-    "EXIT": 4,
-    "BUILD": 1,
-    "BUY": 1,
-    "OVERSOLD": 1,
-    "SELL": 1
+    "HOLD": 19,
+    "SHORT": 18,
+    "EXIT": 5,
+    "CONTRA BUY": 4
   },
   "missing_constituents": [
     {
       "ticker": "ENRIN.NS",
       "stock": "Siemens Energy India Ltd.",
       "reason": "insufficient_history",
-      "history_days": 191
+      "history_days": 192
     },
     {
       "ticker": "LTM.NS",
       "stock": "LTIMindtree Ltd.",
       "reason": "insufficient_history",
-      "history_days": 26
+      "history_days": 27
+    },
+    {
+      "ticker": "TATACAP.NS",
+      "stock": "Tata Capital Ltd.",
+      "reason": "insufficient_history",
+      "history_days": 115
+    },
+    {
+      "ticker": "TMCV.NS",
+      "stock": "Tata Motors Ltd.",
+      "reason": "insufficient_history",
+      "history_days": 95
     }
   ]
 }
