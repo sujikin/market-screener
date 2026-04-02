@@ -13,7 +13,7 @@ def render_overview_cards(cards: list[dict[str, object]]) -> None:
         with col:
             st.markdown(
                 f"""
-                <div class="ims-card ims-card--{tone}">
+                <div class="ims-card ims-card--dashboard ims-card--{tone}">
                     <div class="ims-kicker">{card.get("title", "")}</div>
                     <div class="ims-value">{card.get("value", "")}</div>
                     <div class="ims-subtle">{card.get("caption", "")}</div>
@@ -21,4 +21,3 @@ def render_overview_cards(cards: list[dict[str, object]]) -> None:
                 """,
                 unsafe_allow_html=True,
             )
-

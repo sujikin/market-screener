@@ -144,14 +144,11 @@ def build_experimental_fundamentals_from_frames(
 
     non_null_metrics = sum(value is not None for value in metrics.values())
     if non_null_metrics == 0:
-        status = "Experimental fundamentals via yfinance are unavailable for this ticker right now."
+        status = "Fundamentals unavailable right now."
     else:
-        status = (
-            "Experimental fundamentals via yfinance / Yahoo annual statements and quote summary."
-            + (f" As of {as_of}." if as_of else "")
-            + " ROE uses net income over average equity; ROCE uses EBIT over average capital employed; "
-            + "P/E uses trailing PE when available, otherwise forward PE."
-        )
+        status = "Source: Yahoo annuals via yfinance."
+        if as_of:
+            status += f" As of {as_of}."
 
     return metrics, status
 
@@ -159,7 +156,7 @@ def build_experimental_fundamentals_from_frames(
 def fetch_experimental_fundamentals(ticker: str) -> tuple[dict[str, object], str]:
     normalized = str(ticker).strip().upper()
     if not normalized:
-        return {}, "Experimental fundamentals are unavailable because no ticker was provided."
+        return {}, ""
 
     try:
         yf_ticker = yf.Ticker(normalized)
@@ -170,5 +167,5 @@ def fetch_experimental_fundamentals(ticker: str) -> tuple[dict[str, object], str
         except Exception:
             quote_info = {}
         return build_experimental_fundamentals_from_frames(income_stmt, balance_sheet, quote_info)
-    except Exception as exc:
-        return {}, f"Experimental fundamentals via yfinance failed: {exc}"
+    except Exception:
+        return {}, "Fundamentals unavailable right now."

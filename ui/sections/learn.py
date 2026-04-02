@@ -9,16 +9,26 @@ def render_header_guide() -> None:
         st.markdown(
             """
             - Use `Market Monitor` for daily cached snapshots of `Nifty 50` and `Nifty Next 50`.
-            - Use `Custom Scan` for live ticker checks that may download fresh chart data.
-            - Select a row in the table to update the stock detail panel.
+            - Use `Custom Scan` for ad hoc ticker checks that may fetch live chart or fundamentals data.
+            - Use `Columns` when you want extra fields beyond the core explorer view.
+            - The selected row in the explorer drives the stock detail section below.
             - `Coverage` tells you how many index members were fully screened in the snapshot.
             """
         )
-        st.caption("The long-form project notes remain in `README.md`, but the app no longer replaces the whole page with it.")
 
 
 def render_learn_section() -> None:
     with st.expander("How To Read This", expanded=False):
+        st.markdown("#### Using the workspace")
+        st.markdown(
+            """
+            - `Market Monitor` is snapshot-only, so the table and chart stay aligned to the cached daily files.
+            - `Custom Scan` is more flexible and may fall back to live downloads when local cache data is unavailable.
+            - The explorer starts with core columns only. Use `Columns` to reveal optional metrics when needed.
+            - Selecting a row updates the detail section for that stock.
+            """
+        )
+
         st.markdown("#### Action meanings")
         st.markdown(
             """
@@ -43,6 +53,16 @@ def render_learn_section() -> None:
             """
             - `Market Data` is the last trading date in the cached history.
             - `Generated` is when this local snapshot file was produced.
-            - The monitor tab stays cache-only so one page does not silently mix snapshot data with live downloads.
+            """
+        )
+
+        st.markdown("#### Fundamentals and price range")
+        st.markdown(
+            """
+            - The fundamentals source line above the card rail tells you where the numbers came from and the latest statement date when available.
+            - `52W High` and `52W Low` in `Technical Snapshot` are derived from the loaded price history.
+            - `ROE` uses net income over average equity.
+            - `ROCE` uses EBIT over average capital employed.
+            - `P/E Ratio` uses trailing PE when available, otherwise forward PE.
             """
         )

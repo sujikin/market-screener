@@ -147,12 +147,13 @@ def selected_row_from_state(df, state_key):
 
 
 def render_hero_panel(title, copy):
+    copy_html = f'<div class="ims-hero-copy">{copy}</div>' if str(copy).strip() else ""
     st.markdown(
         f"""
         <div class="ims-hero">
             <div class="ims-kicker">Product View</div>
             <div class="ims-hero-title">{title}</div>
-            <div class="ims-hero-copy">{copy}</div>
+            {copy_html}
         </div>
         """,
         unsafe_allow_html=True,
@@ -163,10 +164,8 @@ def render_page_header():
     st.markdown(
         """
         <div class="ims-page-header">
+            <div class="ims-page-kicker">Snapshot-first equity workspace</div>
             <div class="ims-page-title">Indian Market Screener</div>
-            <div class="ims-page-copy">
-                Daily technical monitor for major Indian index names, plus an advanced custom scan tab.
-            </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -177,6 +176,7 @@ def render_empty_state(title, copy):
     st.markdown(
         f"""
         <div class="ims-empty">
+            <div class="ims-kicker">Workspace State</div>
             <div class="ims-empty-title">{title}</div>
             <div class="ims-empty-copy">{copy}</div>
         </div>
@@ -245,9 +245,7 @@ def render_column_selector(
             on_change=sync_visible_columns,
         )
         if st.session_state.pop(reset_notice_key, False):
-            st.info("At least one column is required. Reverting to the default set.")
-
-        st.caption("Core fields stay visible by default. Add optional metrics only when you need them.")
+            st.info("Select at least one column.")
 
     return [column for column in available_columns if column in st.session_state[key]]
 
@@ -289,7 +287,7 @@ def render_monitor_filters(explorer_df: pd.DataFrame, universe_key: str) -> pd.D
         positive_return_only=positive_return_only,
         limited_history_only=limited_history_only,
     )
-    st.caption(f"Showing {len(filtered_df)} of {len(explorer_df)} screened names.")
+    st.caption(f"{len(filtered_df)} / {len(explorer_df)} names")
     return filtered_df
 
 
@@ -304,9 +302,6 @@ def render_monitor_dashboard(
     explorer_df = build_explorer_df(snapshot, history_days_by_ticker)
 
     render_truth_bar(snapshot)
-    st.caption(
-        "The monitor tab uses local snapshot files only. Charts do not silently fall back to live downloads."
-    )
 
     st.markdown("### Market Pulse")
     render_overview_cards(build_overview_cards(snapshot))
@@ -322,7 +317,7 @@ def render_monitor_dashboard(
     if filtered_df.empty:
         render_empty_state(
             "No stocks match the current filters.",
-            "Try clearing the action or RSI filters, or switch back to `All` view to restore the full snapshot.",
+            "Clear filters or switch back to `All`.",
         )
         if st.button("Clear monitor filters", key=f"{selected_universe}_clear_filters"):
             reset_monitor_filters(selected_universe)
@@ -330,9 +325,7 @@ def render_monitor_dashboard(
         render_learn_section()
         return
 
-    controls_left, controls_right = st.columns([0.82, 0.18])
-    with controls_left:
-        st.caption("The explorer keeps only the core fields visible by default. Add optional metrics from `Columns` when needed.")
+    _, controls_right = st.columns([0.82, 0.18])
     with controls_right:
         visible_columns = render_column_selector(
             key=f"{selected_universe}_visible_columns",
@@ -353,11 +346,10 @@ def render_monitor_dashboard(
         selection_event,
         current_selected_ticker,
     )
-    st.caption("Select a row in the table to update the stock detail below. One row always stays selected.")
 
     selected_row = selected_row_from_state(filtered_df, "monitor_selected_ticker")
     if selected_row is None:
-        st.warning("No stock is available to inspect.")
+        st.warning("No stock to inspect.")
         render_learn_section()
         return
 
@@ -372,7 +364,6 @@ def render_monitor_dashboard(
     )
 
     st.markdown("### Stock Detail")
-    st.caption("The detail section follows the selected row and uses the same snapshot date as the table.")
     render_detail_summary(detail_view)
     control_cols = st.columns([1.6, 0.8], gap="large")
     timeframe = control_cols[0].radio(
@@ -404,7 +395,7 @@ def render_monitor_tab():
     with top_left:
         render_hero_panel(
             "Market Monitor",
-            "Use the snapshot workspace to inspect cached Nifty 50 and Nifty Next 50 signals without mixing in live chart fallbacks.",
+            "",
         )
     with top_right:
         st.markdown(
@@ -426,7 +417,6 @@ def render_monitor_tab():
             label_visibility="collapsed",
             key="monitor_universe_selector",
         )
-        st.caption("Switch between the two local index snapshots.")
 
     if selected_universe != st.session_state.selected_universe_key:
         st.session_state.monitor_selected_ticker = None
@@ -460,7 +450,7 @@ def render_custom_tab():
     with top_left:
         render_hero_panel(
             "Custom Scan",
-            "Live ticker checks for names outside the daily snapshot, using the same explorer-detail workflow after the scan completes.",
+            "Live scan for your own tickers.",
         )
     with top_right:
         st.markdown(
@@ -468,7 +458,7 @@ def render_custom_tab():
             <div class="ims-card ims-card--compact ims-card--accent">
                 <div class="ims-kicker">Mode</div>
                 <div class="ims-stat-value">Live Input</div>
-                <div class="ims-subtle">This tab may download fresh chart data when cache data is unavailable.</div>
+                <div class="ims-subtle">May use live chart data.</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -487,7 +477,7 @@ def render_custom_tab():
     if st.button("Run Screener", key="custom_run_btn", type="primary"):
         if not custom_tickers.strip():
             clear_custom_results()
-            st.error("Please enter at least one ticker symbol.")
+            st.error("Enter at least one ticker.")
         else:
             with st.spinner("Running screener..."):
                 try:
@@ -502,22 +492,23 @@ def render_custom_tab():
                     )
                     if df_result.empty:
                         clear_custom_results()
-                        st.error("No results found. Please check your ticker symbols and try again.")
+                        st.error("No matches found. Check the ticker symbols.")
                     else:
                         st.session_state.custom_df = df_result
                         st.session_state.custom_run_at = datetime.now()
                         st.session_state.custom_selected_ticker = None
                         clear_table_selection_state("custom_table")
-                        st.success(f"Screener completed. Found {len(df_result)} matching stocks.")
+                        st.success(f"Scan complete: {len(df_result)} matches.")
                 except Exception as exc:
                     clear_custom_results()
                     st.error(f"Error running screener: {exc}")
 
     if st.session_state.custom_df is None:
         render_empty_state(
-            "No live custom scan has been run yet.",
-            "Try a short list like `RELIANCE.NS`, `TCS.NS`, `INFY.NS`, or paste one ticker per line. This tab is best for ad hoc checks, not the daily index monitor.",
+            "No custom scan yet.",
+            "Try `RELIANCE.NS`, `TCS.NS`, or `INFY.NS`.",
         )
+        render_learn_section()
         return
 
     results_df = st.session_state.custom_df
@@ -527,7 +518,7 @@ def render_custom_tab():
             """
             <div class="ims-card ims-card--accent">
                 <div class="ims-kicker">Mode</div>
-                <div class="ims-stat-value">Live Custom Session</div>
+                <div class="ims-stat-value">Custom Session</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -541,7 +532,7 @@ def render_custom_tab():
         st.markdown(
             f"""
             <div class="ims-card ims-card--compact">
-                <div class="ims-kicker">Run At</div>
+                <div class="ims-kicker">Updated</div>
                 <div class="ims-stat-value">{run_label}</div>
             </div>
             """,
@@ -557,8 +548,6 @@ def render_custom_tab():
             """,
             unsafe_allow_html=True,
         )
-    st.caption("Custom scans may use live downloads for charts when cache data is unavailable.")
-
     explorer_df = build_custom_explorer_df(results_df)
     search_text = st.text_input("Search", placeholder="Find stock or ticker", key="custom_search_text")
     if search_text:
@@ -572,17 +561,16 @@ def render_custom_tab():
 
     if filtered_df.empty:
         render_empty_state(
-            "No custom results match the current search.",
-            "Clear the search input to restore the last run, or run a new batch of tickers.",
+            "No matches for this search.",
+            "Clear search or run another batch.",
         )
         if st.button("Clear custom search", key="clear_custom_search"):
             reset_custom_search()
             st.rerun()
+        render_learn_section()
         return
 
-    controls_left, controls_right = st.columns([0.82, 0.18])
-    with controls_left:
-        st.caption("The explorer keeps only the core fields visible by default. Add optional metrics from `Columns` when needed.")
+    _, controls_right = st.columns([0.82, 0.18])
     with controls_right:
         visible_columns = render_column_selector(
             key="custom_visible_columns",
@@ -603,11 +591,11 @@ def render_custom_tab():
         selection_event,
         current_selected_ticker,
     )
-    st.caption("Select a row in the table to update the stock detail below. One row always stays selected.")
 
     selected_row = selected_row_from_state(filtered_df, "custom_selected_ticker")
     if selected_row is None:
-        st.warning("No stock is available to inspect.")
+        st.warning("No stock to inspect.")
+        render_learn_section()
         return
 
     selected_ticker = str(selected_row["Ticker"])
@@ -621,7 +609,6 @@ def render_custom_tab():
     )
 
     st.markdown("### Stock Detail")
-    st.caption(f"The detail section follows the selected row. Chart source for this selection: {chart_source}.")
     render_detail_summary(detail_view)
     control_cols = st.columns([1.6, 0.8], gap="large")
     timeframe = control_cols[0].radio(

@@ -26,22 +26,20 @@ def render_top_ideas(ideas: list[dict[str, object]], key_prefix: str) -> str | N
         with col:
             st.markdown(
                 f"""
-                <div class="ims-card ims-card--accent">
+                <div class="ims-card ims-card--accent ims-card--idea ims-card--dashboard">
                     <div class="ims-kicker">{idea.get("title", "")}</div>
                     <div class="ims-idea-stock">{idea.get("stock", "")}</div>
-                    <div class="ims-subtle">{idea.get("ticker", "")}</div>
-                    <div style="margin: 0.45rem 0 0.25rem 0;">
+                    <div style="margin: 0.22rem 0 0.14rem 0;">
                         <span class="ims-badge ims-badge--{badge_class}">{idea.get("action", "")}</span>
                     </div>
                     <div class="ims-idea-metric">{idea.get("metric", "")}</div>
-                    <div class="ims-subtle">{idea.get("note", "")}</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
             ticker = str(idea.get("ticker", "")).strip()
             if ticker and idea.get("action") != "Missing":
-                if st.button("Open", key=f"{key_prefix}_idea_{idx}_{ticker}"):
+                card_label = f"Open {idea.get('stock', ticker)}"
+                if st.button(card_label, key=f"{key_prefix}_idea_{idx}_{ticker}", use_container_width=True):
                     selected_ticker = ticker
     return selected_ticker
-

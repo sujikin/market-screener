@@ -18,7 +18,7 @@ def _action_badge_class(action_family: str) -> str:
 def _format_stat_value(label: str, value: object) -> str:
     if value is None:
         return "NA"
-    if label == "Close":
+    if label in {"Close", "52W High", "52W Low"}:
         return f"{float(value):.2f}"
     if label == "RSI":
         return f"{float(value):.1f}"

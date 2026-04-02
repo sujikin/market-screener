@@ -207,31 +207,11 @@ def build_fundamental_snapshot(row: pd.Series) -> tuple[dict[str, object], str]:
         fundamentals[display_label] = value
 
     if has_live_value:
-        status = "Fundamental fields are present in the loaded dataset. Source labeling should be tightened before using them in ranking."
+        status = "Source: loaded data."
     else:
-        status = "Fundamental source not connected yet. This section is a placeholder for a later safe data integration."
+        status = ""
 
     return fundamentals, status
-
-
-def enrich_fundamental_snapshot_with_price_range(
-    fundamental_stats: dict[str, object],
-    metrics: dict[str, object],
-) -> dict[str, object]:
-    # The detail view currently uses the fundamental card rail for secondary stats,
-    # so we append 52W price range here until a dedicated supplemental section exists.
-    enriched = dict(fundamental_stats)
-    if metrics.get("price_52w_high") is not None:
-        enriched["52W High"] = metrics["price_52w_high"]
-    if metrics.get("price_52w_low") is not None:
-        enriched["52W Low"] = metrics["price_52w_low"]
-    return enriched
-
-
-def append_status_note(status: str, note: str) -> str:
-    if not status:
-        return note
-    return f"{status} | {note}"
 
 
 def build_detail_view(
@@ -268,9 +248,10 @@ def build_detail_view(
         "RSI": metrics.get("rsi"),
         "Volume vs 20D Avg": metrics.get("volume_ratio"),
         "1Y Return": metrics.get("return_1y"),
+        "52W High": metrics.get("price_52w_high"),
+        "52W Low": metrics.get("price_52w_low"),
         "History Days": metrics.get("history_days"),
         "Data Date": metrics.get("data_date"),
-        "Chart Source": chart_source,
     }
     if fundamental_payload is None:
         fundamental_stats, fundamental_status = build_fundamental_snapshot(row)
@@ -280,10 +261,6 @@ def build_detail_view(
             fundamental_stats, fallback_status = build_fundamental_snapshot(row)
             if not fundamental_status:
                 fundamental_status = fallback_status
-    fundamental_stats = enrich_fundamental_snapshot_with_price_range(fundamental_stats, metrics)
-    if fundamental_stats.get("52W High") is not None or fundamental_stats.get("52W Low") is not None:
-        range_note = "52W High/Low are derived from the loaded price history."
-        fundamental_status = append_status_note(fundamental_status, range_note)
 
     return DetailView(
         ticker=str(row.get("Ticker", "")),
