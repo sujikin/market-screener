@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 
@@ -19,7 +18,7 @@ from services.presentation import (
 )
 from services.scan_repository import load_grouped_cache, load_index_snapshot
 from ui.sections.details import render_detail_chart, render_detail_summary
-from ui.sections.explorer import normalize_selected_ticker, render_explorer_table, selection_needs_normalization
+from ui.sections.explorer import normalize_selected_ticker, render_explorer_table, resolve_selected_ticker
 from ui.sections.learn import render_header_guide, render_learn_section
 from ui.sections.overview import render_overview_cards
 from ui.sections.top_ideas import render_top_ideas
@@ -30,13 +29,10 @@ from ui.theme import inject_theme
 st.set_page_config(page_title="Indian Market Screener", layout="wide")
 inject_theme()
 
-logger = logging.getLogger(__name__)
-
 DEFAULT_MONITOR_COLUMNS = ["Stock", "Ticker", "Action", "RSI", "Vol_Spike", "1Y_Return_%"]
 MONITOR_OPTIONAL_COLUMNS = ["Priority", "Close", "History_Days"]
 DEFAULT_CUSTOM_COLUMNS = ["Stock", "Ticker", "Action", "RSI", "Vol_Spike", "1Y_Return_%"]
 CUSTOM_OPTIONAL_COLUMNS = ["Priority", "Close"]
-SELECTION_RERUN_LIMIT = 3
 
 
 if "selected_universe_key" not in st.session_state:
@@ -149,40 +145,6 @@ def selected_row_from_state(df, state_key):
     return None if selected_rows.empty else selected_rows.iloc[0]
 
 
-def reconcile_selection_state(
-    *,
-    table_key: str,
-    state_key: str,
-    current_selected_ticker: str | None,
-    resolved_selected_ticker: str | None,
-    edited_df: pd.DataFrame,
-) -> str | None:
-    guard_key = f"{table_key}_selection_reruns"
-    needs_rerun = (
-        resolved_selected_ticker != current_selected_ticker
-        or selection_needs_normalization(edited_df, resolved_selected_ticker)
-    )
-    if not needs_rerun:
-        st.session_state[guard_key] = 0
-        return None
-
-    st.session_state[state_key] = resolved_selected_ticker
-    rerun_count = int(st.session_state.get(guard_key, 0))
-    if rerun_count >= SELECTION_RERUN_LIMIT:
-        st.session_state[guard_key] = 0
-        logger.warning(
-            "Selection sync safety cap reached for %s after %s reruns; keeping ticker=%s",
-            table_key,
-            rerun_count,
-            resolved_selected_ticker,
-        )
-        return "Selection sync hit the safety cap. Keeping the latest checked stock."
-
-    st.session_state[guard_key] = rerun_count + 1
-    # No return here: st.rerun() raises internally and restarts the script.
-    st.rerun()
-
-
 def render_hero_panel(title, copy):
     st.markdown(
         f"""
@@ -249,21 +211,34 @@ def render_column_selector(
     optional_columns: list[str],
 ) -> list[str]:
     available_columns = default_columns + optional_columns
+    widget_key = f"{key}__widget"
+    reset_notice_key = f"{key}__reset_notice"
     if key not in st.session_state:
         st.session_state[key] = default_columns.copy()
+    else:
+        st.session_state[key] = [column for column in available_columns if column in st.session_state[key]]
 
-    with st.popover("Columns", width="content"):
-        selected_columns = st.multiselect(
-            "Visible columns",
-            options=available_columns,
-            default=st.session_state[key],
-            key=key,
-        )
+    persisted_columns = st.session_state[key].copy()
+    widget_columns = [column for column in available_columns if column in st.session_state.get(widget_key, [])]
+    if widget_key not in st.session_state or widget_columns != persisted_columns:
+        st.session_state[widget_key] = persisted_columns.copy()
 
-        selected_columns = [column for column in available_columns if column in selected_columns]
+    def sync_visible_columns() -> None:
+        selected_columns = [column for column in available_columns if column in st.session_state.get(widget_key, [])]
         if not selected_columns:
             selected_columns = default_columns.copy()
-            st.session_state[key] = selected_columns
+            st.session_state[reset_notice_key] = True
+        st.session_state[widget_key] = selected_columns
+        st.session_state[key] = selected_columns
+
+    with st.popover("Columns", width="content"):
+        st.multiselect(
+            "Visible columns",
+            options=available_columns,
+            key=widget_key,
+            on_change=sync_visible_columns,
+        )
+        if st.session_state.pop(reset_notice_key, False):
             st.info("At least one column is required. Reverting to the default set.")
 
         st.caption("Core fields stay visible by default. Add optional metrics only when you need them.")
@@ -359,23 +334,19 @@ def render_monitor_dashboard(
         )
 
     current_selected_ticker = sync_selected_ticker(filtered_df, "monitor_selected_ticker")
-    edited_df, selected_ticker = render_explorer_table(
+    selection_event = render_explorer_table(
         filtered_df,
         key=f"monitor_table_{selected_universe}",
         selected_ticker=current_selected_ticker,
         height=340,
         column_order=visible_columns,
     )
-    st.caption("Use the leftmost checkbox to inspect one stock at a time. If two checks appear briefly while switching, the table will normalize automatically.")
-    selection_note = reconcile_selection_state(
-        table_key=f"monitor_table_{selected_universe}",
-        state_key="monitor_selected_ticker",
-        current_selected_ticker=current_selected_ticker,
-        resolved_selected_ticker=selected_ticker,
-        edited_df=edited_df,
+    st.session_state.monitor_selected_ticker = resolve_selected_ticker(
+        filtered_df,
+        selection_event,
+        current_selected_ticker,
     )
-    if selection_note:
-        st.caption(selection_note)
+    st.caption("Select a row in the table to update the stock detail below. One row always stays selected.")
 
     selected_row = selected_row_from_state(filtered_df, "monitor_selected_ticker")
     if selected_row is None:
@@ -394,7 +365,7 @@ def render_monitor_dashboard(
     )
 
     st.markdown("### Stock Detail")
-    st.caption("Use the leftmost checkbox to choose the stock shown below. The detail section follows the checked row and uses the same snapshot date as the table.")
+    st.caption("The detail section follows the selected row and uses the same snapshot date as the table.")
     render_detail_summary(detail_view)
     control_cols = st.columns([1.6, 0.8], gap="large")
     timeframe = control_cols[0].radio(
@@ -611,23 +582,19 @@ def render_custom_tab():
         )
 
     current_selected_ticker = sync_selected_ticker(filtered_df, "custom_selected_ticker")
-    edited_df, selected_ticker = render_explorer_table(
+    selection_event = render_explorer_table(
         filtered_df,
         key="custom_table",
         selected_ticker=current_selected_ticker,
         height=340,
         column_order=visible_columns,
     )
-    st.caption("Use the leftmost checkbox to inspect one stock at a time. If two checks appear briefly while switching, the table will normalize automatically.")
-    selection_note = reconcile_selection_state(
-        table_key="custom_table",
-        state_key="custom_selected_ticker",
-        current_selected_ticker=current_selected_ticker,
-        resolved_selected_ticker=selected_ticker,
-        edited_df=edited_df,
+    st.session_state.custom_selected_ticker = resolve_selected_ticker(
+        filtered_df,
+        selection_event,
+        current_selected_ticker,
     )
-    if selection_note:
-        st.caption(selection_note)
+    st.caption("Select a row in the table to update the stock detail below. One row always stays selected.")
 
     selected_row = selected_row_from_state(filtered_df, "custom_selected_ticker")
     if selected_row is None:
@@ -645,7 +612,7 @@ def render_custom_tab():
     )
 
     st.markdown("### Stock Detail")
-    st.caption(f"Use the leftmost checkbox to change the stock detail below. Chart source for this selection: {chart_source}.")
+    st.caption(f"The detail section follows the selected row. Chart source for this selection: {chart_source}.")
     render_detail_summary(detail_view)
     control_cols = st.columns([1.6, 0.8], gap="large")
     timeframe = control_cols[0].radio(

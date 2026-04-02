@@ -6,8 +6,6 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
-SELECT_COLUMN = "Select"
-
 
 def normalize_selected_ticker(display_df: pd.DataFrame, selected_ticker: str | None) -> str | None:
     if display_df.empty or "Ticker" not in display_df.columns:
@@ -21,65 +19,79 @@ def normalize_selected_ticker(display_df: pd.DataFrame, selected_ticker: str | N
     return tickers[0]
 
 
-def build_explorer_editor_df(display_df: pd.DataFrame, selected_ticker: str | None) -> pd.DataFrame:
-    editor_df = display_df.copy()
-    if SELECT_COLUMN in editor_df.columns:
-        editor_df = editor_df.drop(columns=[SELECT_COLUMN])
+def build_dataframe_selection_state(
+    display_df: pd.DataFrame,
+    selected_ticker: str | None,
+) -> dict[str, object]:
+    normalized_ticker = normalize_selected_ticker(display_df, selected_ticker)
+    rows: list[int] = []
+    if normalized_ticker is not None and "Ticker" in display_df.columns:
+        tickers = display_df["Ticker"].astype(str).tolist()
+        if normalized_ticker in tickers:
+            rows = [tickers.index(normalized_ticker)]
 
-    normalized_ticker = normalize_selected_ticker(editor_df, selected_ticker)
-    if normalized_ticker is None:
-        editor_df.insert(0, SELECT_COLUMN, False)
-        return editor_df
+    return {
+        "selection": {
+            "rows": rows,
+            "columns": [],
+            "cells": [],
+        }
+    }
 
-    editor_df.insert(0, SELECT_COLUMN, editor_df["Ticker"].astype(str) == normalized_ticker)
-    return editor_df
+
+def _extract_selected_rows(selection_state: object | None) -> list[int]:
+    if selection_state is None:
+        return []
+
+    selection: object | None = None
+    if hasattr(selection_state, "selection"):
+        selection = getattr(selection_state, "selection")
+    elif isinstance(selection_state, Mapping):
+        selection = selection_state.get("selection")
+
+    if selection is None:
+        return []
+
+    if hasattr(selection, "rows"):
+        rows = getattr(selection, "rows")
+    elif isinstance(selection, Mapping):
+        rows = selection.get("rows")
+    else:
+        rows = None
+
+    if not isinstance(rows, list):
+        return []
+    return [row for row in rows if isinstance(row, int)]
+
+
+def sync_dataframe_selection_state(
+    display_df: pd.DataFrame,
+    *,
+    key: str,
+    selected_ticker: str | None,
+) -> dict[str, object]:
+    desired_state = build_dataframe_selection_state(display_df, selected_ticker)
+    desired_rows = _extract_selected_rows(desired_state)
+    current_rows = _extract_selected_rows(st.session_state.get(key))
+    if current_rows != desired_rows:
+        st.session_state[key] = desired_state
+    return desired_state
 
 
 def resolve_selected_ticker(
-    edited_df: pd.DataFrame,
-    previous_selected_ticker: str | None,
-    editor_state: Mapping[str, Any] | None = None,
+    display_df: pd.DataFrame,
+    selection_state: object | None,
+    fallback_ticker: str | None,
 ) -> str | None:
-    normalized_previous = normalize_selected_ticker(edited_df, previous_selected_ticker)
-    if edited_df.empty or "Ticker" not in edited_df.columns or SELECT_COLUMN not in edited_df.columns:
-        return normalized_previous
+    normalized_fallback = normalize_selected_ticker(display_df, fallback_ticker)
+    rows = _extract_selected_rows(selection_state)
+    if not rows:
+        return normalized_fallback
 
-    edited_rows = editor_state.get("edited_rows") if editor_state is not None else None
-    if isinstance(edited_rows, dict):
-        true_edits: list[int] = []
-        for row_idx, row_edits in edited_rows.items():
-            if not isinstance(row_edits, dict):
-                continue
-            if row_edits.get(SELECT_COLUMN):
-                try:
-                    true_edits.append(int(row_idx))
-                except (TypeError, ValueError):
-                    continue
-        if true_edits:
-            chosen_index = true_edits[-1]
-            if 0 <= chosen_index < len(edited_df):
-                return str(edited_df.iloc[chosen_index]["Ticker"])
-
-    selected_rows = edited_df[edited_df[SELECT_COLUMN].fillna(False).astype(bool)]
-    if selected_rows.empty:
-        return normalized_previous
-    if len(selected_rows) == 1:
-        return str(selected_rows.iloc[0]["Ticker"])
-
-    selected_tickers = selected_rows["Ticker"].astype(str).tolist()
-    if normalized_previous in selected_tickers:
-        return normalized_previous
-    return selected_tickers[0]
-
-
-def selection_needs_normalization(edited_df: pd.DataFrame, selected_ticker: str | None) -> bool:
-    if edited_df.empty or SELECT_COLUMN not in edited_df.columns or "Ticker" not in edited_df.columns:
-        return False
-
-    selected_rows = edited_df[edited_df[SELECT_COLUMN].fillna(False).astype(bool)]
-    if len(selected_rows) != 1:
-        return True
-    return str(selected_rows.iloc[0]["Ticker"]) != str(selected_ticker)
+    selected_index = rows[0]
+    if 0 <= selected_index < len(display_df):
+        return str(display_df.iloc[selected_index]["Ticker"])
+    return normalized_fallback
 
 
 def render_explorer_table(
@@ -102,19 +114,24 @@ def render_explorer_table(
             "Close",
             "History_Days",
         ]
-    editor_df = build_explorer_editor_df(display_df, selected_ticker)
-    column_order = [SELECT_COLUMN] + [column for column in column_order if column in editor_df.columns]
-    disabled_columns = [column for column in editor_df.columns if column != SELECT_COLUMN]
 
-    edited_df = st.data_editor(
-        editor_df,
+    selection_default = sync_dataframe_selection_state(
+        display_df,
+        key=key,
+        selected_ticker=selected_ticker,
+    )
+    column_order = [column for column in column_order if column in display_df.columns]
+
+    return st.dataframe(
+        display_df,
         width="stretch",
         height=height,
         hide_index=True,
         key=key,
-        disabled=disabled_columns,
+        on_select="rerun",
+        selection_mode="single-row-required",
+        selection_default=selection_default,
         column_config={
-            SELECT_COLUMN: st.column_config.CheckboxColumn("Pick", width="small"),
             "Stock": st.column_config.TextColumn("Stock", width="large"),
             "Ticker": st.column_config.TextColumn("Ticker", width="medium"),
             "Action": st.column_config.TextColumn("Action", width="small"),
@@ -127,5 +144,3 @@ def render_explorer_table(
         },
         column_order=column_order,
     )
-    resolved_ticker = resolve_selected_ticker(edited_df, selected_ticker, st.session_state.get(key))
-    return edited_df, resolved_ticker
