@@ -29,16 +29,6 @@ def _format_stat_value(label: str, value: object) -> str:
     return str(value)
 
 
-def _format_fundamental_value(value: object) -> str:
-    if value in (None, "", "NA"):
-        return "NA"
-    try:
-        numeric = float(value)
-    except (TypeError, ValueError):
-        return str(value)
-    return f"{numeric:.1f}%"
-
-
 def _format_fundamental_display(label: str, value: object) -> str:
     if value in (None, "", "NA"):
         return "NA"
@@ -46,6 +36,8 @@ def _format_fundamental_display(label: str, value: object) -> str:
         numeric = float(value)
     except (TypeError, ValueError):
         return str(value)
+    if label in {"52W High", "52W Low"}:
+        return f"{numeric:.2f}"
     if label in {"Debt / Equity", "P/E Ratio"}:
         return f"{numeric:.2f}x"
     return f"{numeric:.1f}%"
@@ -196,4 +188,4 @@ def render_detail_chart(
         yaxis_title="Price (INR)",
         showlegend=show_mas,
     )
-    st.plotly_chart(fig, use_container_width=True, key=f"{key_prefix}_chart")
+    st.plotly_chart(fig, width="stretch", key=f"{key_prefix}_chart")

@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 TASK.MD
 ACTION_ITEMS.MD
+CLAUDE.md
 tests/
 screener.log
 price_cache_*.csv

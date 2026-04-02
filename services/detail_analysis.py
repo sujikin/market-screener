@@ -61,12 +61,32 @@ def analyze_price_history(hist: pd.DataFrame | None) -> dict[str, object]:
     latest = df.iloc[-1]
     prev = df.iloc[-2] if len(df) > 1 else latest
 
+    # Use the same trailing window for both 1Y return and 52W price range.
     lookback_points = min(252, len(df))
+    lookback_df = df.tail(lookback_points)
     first_price = _safe_float(adj_close.iloc[-lookback_points]) if lookback_points else None
     current_price = _safe_float(latest["Close"])
     return_1y = None
     if first_price and current_price is not None and first_price > 0:
         return_1y = ((current_price - first_price) / first_price) * 100
+
+    range_high_series = (
+        pd.to_numeric(lookback_df.get("High"), errors="coerce")
+        if "High" in lookback_df.columns
+        else lookback_df["Close"]
+    )
+    if range_high_series.dropna().empty:
+        range_high_series = lookback_df["Close"]
+
+    range_low_series = (
+        pd.to_numeric(lookback_df.get("Low"), errors="coerce")
+        if "Low" in lookback_df.columns
+        else lookback_df["Close"]
+    )
+    if range_low_series.dropna().empty:
+        range_low_series = lookback_df["Close"]
+    price_52w_high = _safe_float(range_high_series.max()) if not range_high_series.empty else None
+    price_52w_low = _safe_float(range_low_series.min()) if not range_low_series.empty else None
 
     volume_ratio = None
     if "AVG_VOL_20" in df.columns:
@@ -85,6 +105,8 @@ def analyze_price_history(hist: pd.DataFrame | None) -> dict[str, object]:
         "data_date": latest_date if isinstance(latest_date, date) else None,
         "dma50": _safe_float(latest.get("DMA50")),
         "dma200": _safe_float(latest.get("DMA200")),
+        "price_52w_high": price_52w_high,
+        "price_52w_low": price_52w_low,
         "momentum_improving": _safe_float(latest.get("MACD_HIST")) is not None
         and _safe_float(prev.get("MACD_HIST")) is not None
         and float(latest["MACD_HIST"]) > float(prev["MACD_HIST"]),
@@ -192,6 +214,26 @@ def build_fundamental_snapshot(row: pd.Series) -> tuple[dict[str, object], str]:
     return fundamentals, status
 
 
+def enrich_fundamental_snapshot_with_price_range(
+    fundamental_stats: dict[str, object],
+    metrics: dict[str, object],
+) -> dict[str, object]:
+    # The detail view currently uses the fundamental card rail for secondary stats,
+    # so we append 52W price range here until a dedicated supplemental section exists.
+    enriched = dict(fundamental_stats)
+    if metrics.get("price_52w_high") is not None:
+        enriched["52W High"] = metrics["price_52w_high"]
+    if metrics.get("price_52w_low") is not None:
+        enriched["52W Low"] = metrics["price_52w_low"]
+    return enriched
+
+
+def append_status_note(status: str, note: str) -> str:
+    if not status:
+        return note
+    return f"{status} | {note}"
+
+
 def build_detail_view(
     row: pd.Series,
     hist: pd.DataFrame | None,
@@ -211,6 +253,8 @@ def build_detail_view(
             "data_date": None,
             "dma50": None,
             "dma200": None,
+            "price_52w_high": None,
+            "price_52w_low": None,
             "momentum_improving": False,
             "momentum_weakening": False,
         }
@@ -236,6 +280,10 @@ def build_detail_view(
             fundamental_stats, fallback_status = build_fundamental_snapshot(row)
             if not fundamental_status:
                 fundamental_status = fallback_status
+    fundamental_stats = enrich_fundamental_snapshot_with_price_range(fundamental_stats, metrics)
+    if fundamental_stats.get("52W High") is not None or fundamental_stats.get("52W Low") is not None:
+        range_note = "52W High/Low are derived from the loaded price history."
+        fundamental_status = append_status_note(fundamental_status, range_note)
 
     return DetailView(
         ticker=str(row.get("Ticker", "")),

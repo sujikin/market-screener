@@ -4,13 +4,13 @@ import streamlit as st
 
 
 def render_header_guide() -> None:
-    with st.popover("Guide", use_container_width=True):
+    with st.popover("Guide", width="stretch"):
         st.markdown("### Quick Guide")
         st.markdown(
             """
             - Use `Market Monitor` for daily cached snapshots of `Nifty 50` and `Nifty Next 50`.
             - Use `Custom Scan` for live ticker checks that may download fresh chart data.
-            - Select a row in the table to update the stock detail panel.
+            - Use the leftmost checkbox in the table to update the stock detail panel.
             - `Coverage` tells you how many index members were fully screened in the snapshot.
             """
         )
