@@ -70,11 +70,19 @@ def sync_dataframe_selection_state(
     key: str,
     selected_ticker: str | None,
 ) -> dict[str, object]:
+    tickers_state_key = f"{key}__tickers"
     desired_state = build_dataframe_selection_state(display_df, selected_ticker)
-    desired_rows = _extract_selected_rows(desired_state)
-    current_rows = _extract_selected_rows(st.session_state.get(key))
-    if current_rows != desired_rows:
+    current_tickers = tuple(display_df["Ticker"].astype(str).tolist()) if "Ticker" in display_df.columns else ()
+    previous_tickers = tuple(st.session_state.get(tickers_state_key, ()))
+    current_selected_ticker = resolve_selected_ticker(display_df, st.session_state.get(key), None)
+    needs_sync = (
+        key not in st.session_state
+        or current_tickers != previous_tickers
+        or current_selected_ticker is None
+    )
+    if needs_sync:
         st.session_state[key] = desired_state
+    st.session_state[tickers_state_key] = current_tickers
     return desired_state
 
 

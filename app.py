@@ -113,6 +113,7 @@ def clear_custom_results():
     st.session_state.custom_df = None
     st.session_state.custom_run_at = None
     st.session_state.custom_selected_ticker = None
+    clear_table_selection_state("custom_table")
 
 
 def build_history_days_lookup(grouped_cache):
@@ -202,6 +203,11 @@ def reset_monitor_filters(universe_key):
 def reset_custom_search():
     st.session_state["custom_search_text"] = ""
     st.session_state["custom_visible_columns"] = DEFAULT_CUSTOM_COLUMNS.copy()
+
+
+def clear_table_selection_state(table_key: str) -> None:
+    st.session_state.pop(table_key, None)
+    st.session_state.pop(f"{table_key}__tickers", None)
 
 
 def render_column_selector(
@@ -309,6 +315,7 @@ def render_monitor_dashboard(
     idea_ticker = render_top_ideas(build_top_ideas(snapshot), "monitor")
     if idea_ticker:
         st.session_state.monitor_selected_ticker = idea_ticker
+        clear_table_selection_state(f"monitor_table_{selected_universe}")
         st.rerun()
 
     filtered_df = render_monitor_filters(explorer_df, selected_universe)
@@ -423,6 +430,7 @@ def render_monitor_tab():
 
     if selected_universe != st.session_state.selected_universe_key:
         st.session_state.monitor_selected_ticker = None
+        clear_table_selection_state(f"monitor_table_{selected_universe}")
     st.session_state.selected_universe_key = selected_universe
 
     scan_version = get_file_version(f"latest_scan_{selected_universe}.csv")
@@ -499,6 +507,7 @@ def render_custom_tab():
                         st.session_state.custom_df = df_result
                         st.session_state.custom_run_at = datetime.now()
                         st.session_state.custom_selected_ticker = None
+                        clear_table_selection_state("custom_table")
                         st.success(f"Screener completed. Found {len(df_result)} matching stocks.")
                 except Exception as exc:
                     clear_custom_results()
