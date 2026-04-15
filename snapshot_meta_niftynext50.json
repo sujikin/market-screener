@@ -3,34 +3,35 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-04-14T14:19:17.278911+00:00",
-  "market_data_date": "2026-04-13",
+  "generated_at": "2026-04-15T14:20:05.975505+00:00",
+  "market_data_date": "2026-04-15",
   "screened_count": 47,
   "constituent_count": 50,
   "action_counts": {
     "HOLD": 31,
-    "BUILD": 10,
-    "EXIT": 5,
-    "CONTRA BUY": 1
+    "BUILD": 13,
+    "CONTRA BUY": 1,
+    "SELL": 1,
+    "EXIT": 1
   },
   "missing_constituents": [
     {
       "ticker": "LTM.NS",
       "stock": "LTIMindtree Ltd.",
       "reason": "insufficient_history",
-      "history_days": 35
+      "history_days": 36
     },
     {
       "ticker": "TATACAP.NS",
       "stock": "Tata Capital Ltd.",
       "reason": "insufficient_history",
-      "history_days": 123
+      "history_days": 124
     },
     {
       "ticker": "TMCV.NS",
       "stock": "Tata Motors Ltd.",
       "reason": "insufficient_history",
-      "history_days": 103
+      "history_days": 104
     }
   ]
 }
