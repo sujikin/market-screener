@@ -3,16 +3,16 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-05-06T03:46:30.174981+00:00",
+  "generated_at": "2026-05-06T15:11:47.625430+00:00",
   "market_data_date": "2026-05-06",
   "screened_count": 47,
   "constituent_count": 54,
   "action_counts": {
-    "HOLD": 24,
+    "HOLD": 28,
     "BUILD": 8,
     "SELL": 7,
-    "EXIT": 7,
-    "BUY": 1
+    "EXIT": 3,
+    "OVERSOLD": 1
   },
   "missing_constituents": [
     {
