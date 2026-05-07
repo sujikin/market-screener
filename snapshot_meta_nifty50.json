@@ -3,23 +3,24 @@
   "universe_key": "nifty50",
   "universe_label": "Nifty 50",
   "mode": "snapshot",
-  "generated_at": "2026-05-06T15:11:35.587181+00:00",
-  "market_data_date": "2026-05-06",
+  "generated_at": "2026-05-07T15:12:25.846272+00:00",
+  "market_data_date": "2026-05-07",
   "screened_count": 49,
   "constituent_count": 50,
   "action_counts": {
-    "HOLD": 32,
-    "BUILD": 6,
-    "EXIT": 6,
-    "SELL": 3,
-    "CONTRA BUY": 2
+    "HOLD": 27,
+    "BUILD": 8,
+    "EXIT": 7,
+    "SELL": 4,
+    "CONTRA BUY": 2,
+    "SHORT": 1
   },
   "missing_constituents": [
     {
       "ticker": "TMPV.NS",
       "stock": "Tata Motors Passenger Vehicles Ltd.",
       "reason": "insufficient_history",
-      "history_days": 135
+      "history_days": 136
     }
   ]
 }
