@@ -3,12 +3,12 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-05-27T16:23:20.369677+00:00",
+  "generated_at": "2026-05-28T16:38:05.989730+00:00",
   "market_data_date": "2026-05-22",
-  "screened_count": 47,
+  "screened_count": 48,
   "constituent_count": 54,
   "action_counts": {
-    "HOLD": 30,
+    "HOLD": 31,
     "BUILD": 13,
     "EXIT": 2,
     "CONTRA BUY": 1,
@@ -38,12 +38,6 @@
       "stock": "Dummy Vedanta Ltd. 4",
       "reason": "missing_cache_data",
       "history_days": 0
-    },
-    {
-      "ticker": "LTM.NS",
-      "stock": "LTM Ltd.",
-      "reason": "insufficient_history",
-      "history_days": 62
     },
     {
       "ticker": "TATACAP.NS",
