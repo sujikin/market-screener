@@ -3,54 +3,53 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-06-12T15:46:56.538480+00:00",
-  "market_data_date": "2026-06-12",
+  "generated_at": "2026-06-15T17:30:28.538574+00:00",
+  "market_data_date": "2026-06-15",
   "screened_count": 48,
   "constituent_count": 54,
   "action_counts": {
-    "HOLD": 36,
-    "BUILD": 5,
-    "BUY": 3,
-    "CONTRA BUY": 2,
+    "HOLD": 34,
+    "BUILD": 10,
+    "BUY": 2,
     "SELL": 1,
     "SHORT": 1
   },
   "missing_constituents": [
     {
-      "ticker": "DUMMYVEDL1.NS",
-      "stock": "Dummy Vedanta Ltd. 1",
-      "reason": "missing_cache_data",
-      "history_days": 0
-    },
-    {
-      "ticker": "DUMMYVEDL2.NS",
-      "stock": "Dummy Vedanta Ltd. 2",
-      "reason": "missing_cache_data",
-      "history_days": 0
-    },
-    {
-      "ticker": "DUMMYVEDL3.NS",
-      "stock": "Dummy Vedanta Ltd. 3",
-      "reason": "missing_cache_data",
-      "history_days": 0
-    },
-    {
-      "ticker": "DUMMYVEDL4.NS",
-      "stock": "Dummy Vedanta Ltd. 4",
-      "reason": "missing_cache_data",
-      "history_days": 0
-    },
-    {
       "ticker": "TATACAP.NS",
       "stock": "Tata Capital Ltd.",
       "reason": "insufficient_history",
-      "history_days": 166
+      "history_days": 167
     },
     {
       "ticker": "TMCV.NS",
       "stock": "Tata Motors Ltd.",
       "reason": "insufficient_history",
-      "history_days": 146
+      "history_days": 147
+    },
+    {
+      "ticker": "VAML.NS",
+      "stock": "Vedanta Aluminium Metal Ltd.",
+      "reason": "missing_cache_data",
+      "history_days": 0
+    },
+    {
+      "ticker": "VEDPOWER.NS",
+      "stock": "Vedanta Power Ltd.",
+      "reason": "missing_cache_data",
+      "history_days": 0
+    },
+    {
+      "ticker": "VISL.NS",
+      "stock": "Vedanta Iron and Steel Ltd.",
+      "reason": "missing_cache_data",
+      "history_days": 0
+    },
+    {
+      "ticker": "VOGL.NS",
+      "stock": "Vedanta Oil and Gas Ltd.",
+      "reason": "missing_cache_data",
+      "history_days": 0
     }
   ]
 }
