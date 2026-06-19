@@ -3,53 +3,41 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-06-18T15:59:49.364352+00:00",
-  "market_data_date": "2026-06-18",
+  "generated_at": "2026-06-19T15:48:11.208792+00:00",
+  "market_data_date": "2026-06-19",
   "screened_count": 48,
-  "constituent_count": 54,
+  "constituent_count": 52,
   "action_counts": {
-    "HOLD": 30,
+    "HOLD": 19,
     "BUILD": 14,
-    "EXIT": 2,
-    "CONTRA BUY": 1,
-    "BUY": 1
+    "EXIT": 11,
+    "BUY": 2,
+    "SHORT": 2
   },
   "missing_constituents": [
     {
       "ticker": "TATACAP.NS",
       "stock": "Tata Capital Ltd.",
       "reason": "insufficient_history",
-      "history_days": 170
+      "history_days": 171
     },
     {
       "ticker": "TMCV.NS",
       "stock": "Tata Motors Ltd.",
       "reason": "insufficient_history",
-      "history_days": 150
+      "history_days": 151
     },
     {
       "ticker": "VAML.NS",
       "stock": "Vedanta Aluminium Metal Ltd.",
       "reason": "insufficient_history",
-      "history_days": 4
-    },
-    {
-      "ticker": "VEDPOWER.NS",
-      "stock": "Vedanta Power Ltd.",
-      "reason": "insufficient_history",
-      "history_days": 4
-    },
-    {
-      "ticker": "VISL.NS",
-      "stock": "Vedanta Iron and Steel Ltd.",
-      "reason": "insufficient_history",
-      "history_days": 4
+      "history_days": 5
     },
     {
       "ticker": "VOGL.NS",
       "stock": "Vedanta Oil and Gas Ltd.",
       "reason": "insufficient_history",
-      "history_days": 4
+      "history_days": 5
     }
   ]
 }
