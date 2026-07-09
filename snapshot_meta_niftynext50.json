@@ -3,29 +3,31 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-07-08T14:55:53.120744+00:00",
-  "market_data_date": "2026-07-08",
+  "generated_at": "2026-07-09T15:40:43.027600+00:00",
+  "market_data_date": "2026-07-09",
   "screened_count": 48,
   "constituent_count": 50,
   "action_counts": {
-    "HOLD": 27,
-    "EXIT": 12,
-    "SHORT": 5,
-    "BUILD": 3,
-    "SELL": 1
+    "HOLD": 28,
+    "EXIT": 8,
+    "BUILD": 4,
+    "CONTRA BUY": 2,
+    "BUY": 2,
+    "SELL": 2,
+    "SHORT": 2
   },
   "missing_constituents": [
     {
       "ticker": "TATACAP.NS",
       "stock": "Tata Capital Ltd.",
       "reason": "insufficient_history",
-      "history_days": 184
+      "history_days": 185
     },
     {
       "ticker": "TMCV.NS",
       "stock": "Tata Motors Ltd.",
       "reason": "insufficient_history",
-      "history_days": 164
+      "history_days": 165
     }
   ]
 }
