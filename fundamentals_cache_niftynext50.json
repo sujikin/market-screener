@@ -2,29 +2,17 @@
   "version": 1,
   "universe_key": "niftynext50",
   "provider": "yfinance_experimental",
-  "generated_at": "2026-09-01T16:50:16.411396+00:00",
+  "generated_at": "2026-09-02T16:47:03.900870+00:00",
   "tickers": {
-    "ADANIENSOL.NS": {
+    "ADANIGREEN.NS": {
       "metrics": {
-        "ROE": 9.611556741720415,
-        "ROCE": 9.578998991420098,
-        "Debt / Equity": 1.9339829963889545,
-        "Operating Margin": 26.307860673765738,
-        "Sales Growth": 15.387858722924122,
-        "Profit Growth": 115.3400567940602,
-        "P/E Ratio": 57.013203
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "AMBUJACEM.NS": {
-      "metrics": {
-        "ROE": 8.37392620174018,
-        "ROCE": 6.233978704109451,
-        "Debt / Equity": 0.01459088632814422,
-        "Operating Margin": 7.740646594644904,
-        "Sales Growth": 18.76542718310148,
-        "Profit Growth": 9.878459715089122,
-        "P/E Ratio": 22.532213
+        "ROE": 9.83739330882811,
+        "ROCE": 7.560434910147102,
+        "Debt / Equity": 5.080891560230403,
+        "Operating Margin": 60.668505597923094,
+        "Sales Growth": 11.577803928668416,
+        "Profit Growth": 18.99020346646571,
+        "P/E Ratio": 123.42857
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -36,21 +24,9 @@
         "Operating Margin": 14.356173442364978,
         "Sales Growth": 8.08799379863944,
         "Profit Growth": -10.866405932764849,
-        "P/E Ratio": 98.79775
+        "P/E Ratio": 99.6988
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2025-12-31."
-    },
-    "ADANIPOWER.NS": {
-      "metrics": {
-        "ROE": 21.066015566607852,
-        "ROCE": 17.33647889189005,
-        "Debt / Equity": 0.8395655904626154,
-        "Operating Margin": 29.065451867478604,
-        "Sales Growth": -3.5268052951071245,
-        "Profit Growth": 2.4952161651496128,
-        "P/E Ratio": 27.653587
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
     "BAJAJHLDNG.NS": {
       "metrics": {
@@ -60,79 +36,43 @@
         "Operating Margin": null,
         "Sales Growth": 26.964350646517243,
         "Profit Growth": 47.78772733476775,
-        "P/E Ratio": 14.221228
+        "P/E Ratio": 13.940871
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "ADANIGREEN.NS": {
+    "ADANIPOWER.NS": {
       "metrics": {
-        "ROE": 9.83739330882811,
-        "ROCE": 7.560434910147102,
-        "Debt / Equity": 5.080891560230403,
-        "Operating Margin": 60.668505597923094,
-        "Sales Growth": 11.577803928668416,
-        "Profit Growth": 18.99020346646571,
-        "P/E Ratio": 121.052635
+        "ROE": 21.066015566607852,
+        "ROCE": 17.33647889189005,
+        "Debt / Equity": 0.8395655904626154,
+        "Operating Margin": 29.065451867478604,
+        "Sales Growth": -3.5268052951071245,
+        "Profit Growth": 2.4952161651496128,
+        "P/E Ratio": 28.067566
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "BOSCHLTD.NS": {
+    "ADANIENSOL.NS": {
       "metrics": {
-        "ROE": 19.353420451175044,
-        "ROCE": 25.535181534274297,
-        "Debt / Equity": 0.008002586694689192,
-        "Operating Margin": 11.420435117659366,
-        "Sales Growth": 10.817215247143988,
-        "Profit Growth": 37.61413259229853,
-        "P/E Ratio": 60.6875
+        "ROE": 9.611556741720415,
+        "ROCE": 9.578998991420098,
+        "Debt / Equity": 1.9339829963889545,
+        "Operating Margin": 26.307860673765738,
+        "Sales Growth": 15.387858722924122,
+        "Profit Growth": 115.3400567940602,
+        "P/E Ratio": 57.425987
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "CANBK.NS": {
+    "AMBUJACEM.NS": {
       "metrics": {
-        "ROE": 17.66384511096306,
-        "ROCE": null,
-        "Debt / Equity": 1.02381401307291,
-        "Operating Margin": null,
-        "Sales Growth": -9.858333209176944,
-        "Profit Growth": 12.350808590019897,
-        "P/E Ratio": 5.73516
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "BRITANNIA.NS": {
-      "metrics": {
-        "ROE": 53.549250286400316,
-        "ROCE": 56.267798248983425,
-        "Debt / Equity": 0.27368913710991355,
-        "Operating Margin": 17.011370644403684,
-        "Sales Growth": 7.5459851200625945,
-        "Profit Growth": 16.28288039362381,
-        "P/E Ratio": 47.961163
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "CGPOWER.NS": {
-      "metrics": {
-        "ROE": 20.420282654347268,
-        "ROCE": 27.733602363720845,
-        "Debt / Equity": 0.014868615190051289,
-        "Operating Margin": 11.76928063272007,
-        "Sales Growth": 25.114929412148285,
-        "Profit Growth": 23.7707777549764,
-        "P/E Ratio": 111.10414
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "BPCL.NS": {
-      "metrics": {
-        "ROE": 28.469107375786223,
-        "ROCE": 27.338028395511206,
-        "Debt / Equity": 0.5433191448240227,
-        "Operating Margin": 8.34286858658866,
-        "Sales Growth": 2.6359481199897608,
-        "Profit Growth": 93.77912578590414,
-        "P/E Ratio": 7.925399
+        "ROE": 8.37392620174018,
+        "ROCE": 6.233978704109451,
+        "Debt / Equity": 0.01459088632814422,
+        "Operating Margin": 7.740646594644904,
+        "Sales Growth": 18.76542718310148,
+        "Profit Growth": 9.878459715089122,
+        "P/E Ratio": 22.547592
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -144,79 +84,55 @@
         "Operating Margin": null,
         "Sales Growth": 0.4340454553529417,
         "Profit Growth": -4.1991172373791334,
-        "P/E Ratio": 6.7682233
+        "P/E Ratio": 6.8698373
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "CUMMINSIND.NS": {
+    "BPCL.NS": {
       "metrics": {
-        "ROE": 29.45457130456906,
-        "ROCE": 38.64120484692478,
-        "Debt / Equity": 0.004307883273000156,
-        "Operating Margin": 20.06062061653276,
-        "Sales Growth": 16.933646729110972,
-        "Profit Growth": 18.091042731281938,
-        "P/E Ratio": 59.882698
+        "ROE": 28.469107375786223,
+        "ROCE": 27.338028395511206,
+        "Debt / Equity": 0.5433191448240227,
+        "Operating Margin": 8.34286858658866,
+        "Sales Growth": 2.6359481199897608,
+        "Profit Growth": 93.77912578590414,
+        "P/E Ratio": 7.972063
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "DIVISLAB.NS": {
+    "BOSCHLTD.NS": {
       "metrics": {
-        "ROE": 16.18657421998109,
-        "ROCE": 21.49880247069205,
-        "Debt / Equity": 0.0004176361792255832,
-        "Operating Margin": 28.436426116838486,
-        "Sales Growth": 12.343163538873995,
-        "Profit Growth": 17.206754906435417,
-        "P/E Ratio": 94.915085
+        "ROE": 19.353420451175044,
+        "ROCE": 25.535181534274297,
+        "Debt / Equity": 0.008002586694689192,
+        "Operating Margin": 11.420435117659366,
+        "Sales Growth": 10.817215247143988,
+        "Profit Growth": 37.61413259229853,
+        "P/E Ratio": 58.982872
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "DLF.NS": {
+    "BRITANNIA.NS": {
       "metrics": {
-        "ROE": 10.030663371034969,
-        "ROCE": 6.778078579633871,
-        "Debt / Equity": 0.006726864551113904,
-        "Operating Margin": 16.38140690936273,
-        "Sales Growth": -1.3709359115259412,
-        "Profit Growth": 1.0773254962683922,
-        "P/E Ratio": 37.570953
+        "ROE": 53.549250286400316,
+        "ROCE": 56.267798248983425,
+        "Debt / Equity": 0.27368913710991355,
+        "Operating Margin": 17.011370644403684,
+        "Sales Growth": 7.5459851200625945,
+        "Profit Growth": 16.28288039362381,
+        "P/E Ratio": 47.770878
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "DMART.NS": {
+    "CANBK.NS": {
       "metrics": {
-        "ROE": 12.945627093647904,
-        "ROCE": 18.02669651062188,
-        "Debt / Equity": 0.0991246744200876,
-        "Operating Margin": 6.044697129628956,
-        "Sales Growth": 15.95618331964449,
-        "Profit Growth": 9.692321327021219,
-        "P/E Ratio": 81.709404
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "ENRIN.NS": {
-      "metrics": {
-        "ROE": 28.95723930982746,
-        "ROCE": 39.896816309340494,
-        "Debt / Equity": 0.03368863122817429,
-        "Operating Margin": 18.28332797944105,
-        "Sales Growth": 63.511639633582654,
-        "Profit Growth": 83.35000000000001,
-        "P/E Ratio": 76.15218
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2025-09-30."
-    },
-    "GAIL.NS": {
-      "metrics": {
-        "ROE": 8.713121702940843,
-        "ROCE": 10.16495297399333,
-        "Debt / Equity": 0.2788501015164582,
-        "Operating Margin": 5.4203203271917095,
-        "Sales Growth": -0.21421168415964603,
-        "Profit Growth": -39.09564812286141,
-        "P/E Ratio": 11.489688
+        "ROE": 17.66384511096306,
+        "ROCE": null,
+        "Debt / Equity": 1.02381401307291,
+        "Operating Margin": null,
+        "Sales Growth": -9.858333209176944,
+        "Profit Growth": 12.350808590019897,
+        "P/E Ratio": 5.7671237
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -228,7 +144,91 @@
         "Operating Margin": null,
         "Sales Growth": 24.914343150844786,
         "Profit Growth": 22.7534191944073,
-        "P/E Ratio": 26.840704
+        "P/E Ratio": 26.974442
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "CGPOWER.NS": {
+      "metrics": {
+        "ROE": 20.420282654347268,
+        "ROCE": 27.733602363720845,
+        "Debt / Equity": 0.014868615190051289,
+        "Operating Margin": 11.76928063272007,
+        "Sales Growth": 25.114929412148285,
+        "Profit Growth": 23.7707777549764,
+        "P/E Ratio": 110.131744
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "CUMMINSIND.NS": {
+      "metrics": {
+        "ROE": 29.45457130456906,
+        "ROCE": 38.64120484692478,
+        "Debt / Equity": 0.004307883273000156,
+        "Operating Margin": 20.06062061653276,
+        "Sales Growth": 16.933646729110972,
+        "Profit Growth": 18.091042731281938,
+        "P/E Ratio": 59.689148
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "DIVISLAB.NS": {
+      "metrics": {
+        "ROE": 16.18657421998109,
+        "ROCE": 21.49880247069205,
+        "Debt / Equity": 0.0004176361792255832,
+        "Operating Margin": 28.436426116838486,
+        "Sales Growth": 12.343163538873995,
+        "Profit Growth": 17.206754906435417,
+        "P/E Ratio": 94.904785
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "DLF.NS": {
+      "metrics": {
+        "ROE": 10.030663371034969,
+        "ROCE": 6.778078579633871,
+        "Debt / Equity": 0.006726864551113904,
+        "Operating Margin": 16.38140690936273,
+        "Sales Growth": -1.3709359115259412,
+        "Profit Growth": 1.0773254962683922,
+        "P/E Ratio": 37.502785
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "DMART.NS": {
+      "metrics": {
+        "ROE": 12.945627093647904,
+        "ROCE": 18.02669651062188,
+        "Debt / Equity": 0.0991246744200876,
+        "Operating Margin": 6.044697129628956,
+        "Sales Growth": 15.95618331964449,
+        "Profit Growth": 9.692321327021219,
+        "P/E Ratio": 81.06718
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "ENRIN.NS": {
+      "metrics": {
+        "ROE": 28.95723930982746,
+        "ROCE": 39.896816309340494,
+        "Debt / Equity": 0.03368863122817429,
+        "Operating Margin": 18.28332797944105,
+        "Sales Growth": 63.511639633582654,
+        "Profit Growth": 83.35000000000001,
+        "P/E Ratio": 74.48185
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2025-09-30."
+    },
+    "GODREJCP.NS": {
+      "metrics": {
+        "ROE": 15.098996750195786,
+        "ROCE": 17.773208979851233,
+        "Debt / Equity": 0.34899450325813347,
+        "Operating Margin": 19.268759325275546,
+        "Sales Growth": 8.500574115510029,
+        "Profit Growth": 0.4950601954327053,
+        "P/E Ratio": 48.318207
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -240,43 +240,7 @@
         "Operating Margin": 27.367297291686455,
         "Sales Growth": 5.603944103061682,
         "Profit Growth": 8.984437114200759,
-        "P/E Ratio": 34.460613
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "GODREJCP.NS": {
-      "metrics": {
-        "ROE": 15.098996750195786,
-        "ROCE": 17.773208979851233,
-        "Debt / Equity": 0.34899450325813347,
-        "Operating Margin": 19.268759325275546,
-        "Sales Growth": 8.500574115510029,
-        "Profit Growth": 0.4950601954327053,
-        "P/E Ratio": 48.499466
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "HDFCAMC.NS": {
-      "metrics": {
-        "ROE": 32.929424438466015,
-        "ROCE": 42.88881079804363,
-        "Debt / Equity": 0.01413740381916866,
-        "Operating Margin": 78.18012886447882,
-        "Sales Growth": 17.828517853671922,
-        "Profit Growth": 16.1723281535166,
-        "P/E Ratio": 37.18439
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "HYUNDAI.NS": {
-      "metrics": {
-        "ROE": 29.916266432852662,
-        "ROCE": 38.580373084770784,
-        "Debt / Equity": 0.0548369729170366,
-        "Operating Margin": 9.227758716592756,
-        "Sales Growth": 2.132371639979984,
-        "Profit Growth": -3.700107832787905,
-        "P/E Ratio": 35.816628
+        "P/E Ratio": 34.284897
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -288,7 +252,43 @@
         "Operating Margin": 47.19075321494183,
         "Sales Growth": 18.6162646409007,
         "Profit Growth": 33.60378634212305,
-        "P/E Ratio": 14.78821
+        "P/E Ratio": 14.557151
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "HDFCAMC.NS": {
+      "metrics": {
+        "ROE": 32.929424438466015,
+        "ROCE": 42.88881079804363,
+        "Debt / Equity": 0.01413740381916866,
+        "Operating Margin": 78.18012886447882,
+        "Sales Growth": 17.828517853671922,
+        "Profit Growth": 16.1723281535166,
+        "P/E Ratio": 36.893078
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "GAIL.NS": {
+      "metrics": {
+        "ROE": 8.713121702940843,
+        "ROCE": 10.16495297399333,
+        "Debt / Equity": 0.2788501015164582,
+        "Operating Margin": 5.4203203271917095,
+        "Sales Growth": -0.21421168415964603,
+        "Profit Growth": -39.09564812286141,
+        "P/E Ratio": 11.517976
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "HYUNDAI.NS": {
+      "metrics": {
+        "ROE": 29.916266432852662,
+        "ROCE": 38.580373084770784,
+        "Debt / Equity": 0.0548369729170366,
+        "Operating Margin": 9.227758716592756,
+        "Sales Growth": 2.132371639979984,
+        "Profit Growth": -3.700107832787905,
+        "P/E Ratio": 35.30067
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -300,19 +300,7 @@
         "Operating Margin": 27.836672153764823,
         "Sales Growth": 15.737739983435267,
         "Profit Growth": 9.267714760509334,
-        "P/E Ratio": 47.70764
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "IRFC.NS": {
-      "metrics": {
-        "ROE": 12.81189391628931,
-        "ROCE": 3.678830550291206,
-        "Debt / Equity": 7.691289642275884,
-        "Operating Margin": 64.83680495152957,
-        "Sales Growth": 0.057243628736079896,
-        "Profit Growth": 7.8002153183635805,
-        "P/E Ratio": 15.027323
+        "P/E Ratio": 48.25597
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -324,7 +312,19 @@
         "Operating Margin": 8.818414073102488,
         "Sales Growth": 2.574302321935385,
         "Profit Growth": 209.58049219581935,
-        "P/E Ratio": 5.5840487
+        "P/E Ratio": 5.6055646
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "IRFC.NS": {
+      "metrics": {
+        "ROE": 12.81189391628931,
+        "ROCE": 3.678830550291206,
+        "Debt / Equity": 7.691289642275884,
+        "Operating Margin": 64.83680495152957,
+        "Sales Growth": 0.057243628736079896,
+        "Profit Growth": 7.8002153183635805,
+        "P/E Ratio": 15.023681
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -336,19 +336,7 @@
         "Operating Margin": 13.79234827163498,
         "Sales Growth": 5.519541077417752,
         "Profit Growth": 19.744819762955483,
-        "P/E Ratio": 43.413174
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "LTM.NS": {
-      "metrics": {
-        "ROE": 21.480075251534032,
-        "ROCE": 29.79523002379852,
-        "Debt / Equity": 0.09614984391259106,
-        "Operating Margin": 15.473579215081923,
-        "Sales Growth": 11.312062428798072,
-        "Profit Growth": 9.11996868680279,
-        "P/E Ratio": 26.256033
+        "P/E Ratio": 43.455772
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -360,7 +348,19 @@
         "Operating Margin": 28.896582203889214,
         "Sales Growth": 19.17396361401892,
         "Profit Growth": 24.01693014506385,
-        "P/E Ratio": 28.957071
+        "P/E Ratio": 29.334793
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "LTM.NS": {
+      "metrics": {
+        "ROE": 21.480075251534032,
+        "ROCE": 29.79523002379852,
+        "Debt / Equity": 0.09614984391259106,
+        "Operating Margin": 15.473579215081923,
+        "Sales Growth": 11.312062428798072,
+        "Profit Growth": 9.11996868680279,
+        "P/E Ratio": 26.037113
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -372,31 +372,7 @@
         "Operating Margin": 20.895285387344707,
         "Sales Growth": 15.871951154158076,
         "Profit Growth": 7.033739242845483,
-        "P/E Ratio": 37.39091
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "MUTHOOTFIN.NS": {
-      "metrics": {
-        "ROE": 30.922072404341787,
-        "ROCE": null,
-        "Debt / Equity": 3.85981615532612,
-        "Operating Margin": null,
-        "Sales Growth": 57.66959127298802,
-        "Profit Growth": 98.58495377749442,
-        "P/E Ratio": 10.257044
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "MOTHERSON.NS": {
-      "metrics": {
-        "ROE": 10.17586366446568,
-        "ROCE": 13.249635332862148,
-        "Debt / Equity": 0.46778641079951977,
-        "Operating Margin": 5.458599984482842,
-        "Sales Growth": 11.09107888776436,
-        "Profit Growth": 1.4909282145674467,
-        "P/E Ratio": 39.807693
+        "P/E Ratio": 37.06104
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -408,19 +384,19 @@
         "Operating Margin": 259.87328674371935,
         "Sales Growth": 3.652387477514938,
         "Profit Growth": 12.657840241383406,
-        "P/E Ratio": 4.381097
+        "P/E Ratio": 4.388854
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "PNB.NS": {
+    "MUTHOOTFIN.NS": {
       "metrics": {
-        "ROE": 12.993308824147546,
+        "ROE": 30.922072404341787,
         "ROCE": null,
-        "Debt / Equity": 0.5752280655710771,
+        "Debt / Equity": 3.85981615532612,
         "Operating Margin": null,
-        "Sales Growth": 4.784795320658863,
-        "Profit Growth": -0.47401853542341593,
-        "P/E Ratio": 5.994797
+        "Sales Growth": 57.66959127298802,
+        "Profit Growth": 98.58495377749442,
+        "P/E Ratio": 10.37177
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -432,7 +408,31 @@
         "Operating Margin": 21.633796660907713,
         "Sales Growth": 11.13974440836004,
         "Profit Growth": 17.949755326937154,
-        "P/E Ratio": 63.23586
+        "P/E Ratio": 63.03427
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "MOTHERSON.NS": {
+      "metrics": {
+        "ROE": 10.17586366446568,
+        "ROCE": 13.249635332862148,
+        "Debt / Equity": 0.46778641079951977,
+        "Operating Margin": 5.458599984482842,
+        "Sales Growth": 11.09107888776436,
+        "Profit Growth": 1.4909282145674467,
+        "P/E Ratio": 39.25481
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "PNB.NS": {
+      "metrics": {
+        "ROE": 12.993308824147546,
+        "ROCE": null,
+        "Debt / Equity": 0.5752280655710771,
+        "Operating Margin": null,
+        "Sales Growth": 4.784795320658863,
+        "Profit Growth": -0.47401853542341593,
+        "P/E Ratio": 6.087409
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -444,7 +444,19 @@
         "Operating Margin": null,
         "Sales Growth": -0.3002283105022831,
         "Profit Growth": 2.6689364231064396,
-        "P/E Ratio": 5.1669955
+        "P/E Ratio": 5.2073393
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "SHREECEM.NS": {
+      "metrics": {
+        "ROE": 7.7828327375702155,
+        "ROCE": 10.587615363631588,
+        "Debt / Equity": 0.08028957091706769,
+        "Operating Margin": 9.018920401033037,
+        "Sales Growth": 8.491472324907978,
+        "Profit Growth": 55.290932247922555,
+        "P/E Ratio": 52.50438
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -456,19 +468,19 @@
         "Operating Margin": 9.944022759470634,
         "Sales Growth": 16.243355781975925,
         "Profit Growth": -22.542884487962894,
-        "P/E Ratio": 84.75289
+        "P/E Ratio": 84.519455
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2025-09-30."
     },
-    "SHREECEM.NS": {
+    "SOLARINDS.NS": {
       "metrics": {
-        "ROE": 7.7828327375702155,
-        "ROCE": 10.587615363631588,
-        "Debt / Equity": 0.08028957091706769,
-        "Operating Margin": 9.018920401033037,
-        "Sales Growth": 8.491472324907978,
-        "Profit Growth": 55.290932247922555,
-        "P/E Ratio": 51.923077
+        "ROE": 31.384173867818106,
+        "ROCE": 36.278795647165815,
+        "Debt / Equity": 0.28822564200598993,
+        "Operating Margin": 24.932505329347983,
+        "Sales Growth": 30.594995149496064,
+        "Profit Growth": 38.7046897737796,
+        "P/E Ratio": 93.35629
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -480,31 +492,7 @@
         "Operating Margin": 28.949019275611388,
         "Sales Growth": 10.443577177572335,
         "Profit Growth": null,
-        "P/E Ratio": 28.738281
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "SOLARINDS.NS": {
-      "metrics": {
-        "ROE": 31.384173867818106,
-        "ROCE": 36.278795647165815,
-        "Debt / Equity": 0.28822564200598993,
-        "Operating Margin": 24.932505329347983,
-        "Sales Growth": 30.594995149496064,
-        "Profit Growth": 38.7046897737796,
-        "P/E Ratio": 91.52295
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "TATAPOWER.NS": {
-      "metrics": {
-        "ROE": 9.95165446165793,
-        "ROCE": 10.849831116297278,
-        "Debt / Equity": 2.021661526112436,
-        "Operating Margin": 13.954011401733798,
-        "Sales Growth": -4.801571862415257,
-        "Profit Growth": -5.636111810627046,
-        "P/E Ratio": 29.01904
+        "P/E Ratio": 28.496094
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -516,19 +504,19 @@
         "Operating Margin": 8.86077467322221,
         "Sales Growth": 44.3033155672458,
         "Profit Growth": -5.164319248826291,
-        "P/E Ratio": 40.732456
+        "P/E Ratio": 39.31898
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "TVSMOTOR.NS": {
+    "TATAPOWER.NS": {
       "metrics": {
-        "ROE": 33.4114656986002,
-        "ROCE": 18.2177573870107,
-        "Debt / Equity": 3.4284977912538883,
-        "Operating Margin": 1.9300074310154764,
-        "Sales Growth": 29.181179284873117,
-        "Profit Growth": 35.014493012936356,
-        "P/E Ratio": 58.318302
+        "ROE": 9.95165446165793,
+        "ROCE": 10.849831116297278,
+        "Debt / Equity": 2.021661526112436,
+        "Operating Margin": 13.954011401733798,
+        "Sales Growth": -4.801571862415257,
+        "Profit Growth": -5.636111810627046,
+        "P/E Ratio": 30.18242
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -540,31 +528,19 @@
         "Operating Margin": 25.010997608520036,
         "Sales Growth": 21.522366299233468,
         "Profit Growth": 13.19136690647482,
-        "P/E Ratio": 79.0433
+        "P/E Ratio": 80.10229
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
-    "UNIONBANK.NS": {
+    "TVSMOTOR.NS": {
       "metrics": {
-        "ROE": 15.708455990717752,
-        "ROCE": null,
-        "Debt / Equity": 0.552580721094908,
-        "Operating Margin": null,
-        "Sales Growth": -0.9299075409305682,
-        "Profit Growth": 7.784232150897089,
-        "P/E Ratio": 6.840547
-      },
-      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
-    },
-    "UNITDSPR.NS": {
-      "metrics": {
-        "ROE": 21.551269273612007,
-        "ROCE": 27.861454609388737,
-        "Debt / Equity": 0.046129788897576234,
-        "Operating Margin": 16.085380587998387,
-        "Sales Growth": 7.797169401753928,
-        "Profit Growth": 16.182048040455122,
-        "P/E Ratio": 61.66107
+        "ROE": 33.4114656986002,
+        "ROCE": 18.2177573870107,
+        "Debt / Equity": 3.4284977912538883,
+        "Operating Margin": 1.9300074310154764,
+        "Sales Growth": 29.181179284873117,
+        "Profit Growth": 35.014493012936356,
+        "P/E Ratio": 58.099323
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -576,9 +552,33 @@
         "Operating Margin": 18.528108333616515,
         "Sales Growth": 7.14607720650288,
         "Profit Growth": 17.02961459289233,
-        "P/E Ratio": 40.544456
+        "P/E Ratio": 41.417164
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2025-12-31."
+    },
+    "UNIONBANK.NS": {
+      "metrics": {
+        "ROE": 15.708455990717752,
+        "ROCE": null,
+        "Debt / Equity": 0.552580721094908,
+        "Operating Margin": null,
+        "Sales Growth": -0.9299075409305682,
+        "Profit Growth": 7.784232150897089,
+        "P/E Ratio": 6.913059
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
+    },
+    "UNITDSPR.NS": {
+      "metrics": {
+        "ROE": 21.551269273612007,
+        "ROCE": 27.861454609388737,
+        "Debt / Equity": 0.046129788897576234,
+        "Operating Margin": 16.085380587998387,
+        "Sales Growth": 7.797169401753928,
+        "Profit Growth": 16.182048040455122,
+        "P/E Ratio": 61.717766
+      },
+      "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
     "VEDL.NS": {
       "metrics": {
@@ -588,7 +588,7 @@
         "Operating Margin": 24.12484348914858,
         "Sales Growth": 24.45743040337635,
         "Profit Growth": 16.032826261008807,
-        "P/E Ratio": 12.038664
+        "P/E Ratio": 11.88845
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     },
@@ -600,7 +600,7 @@
         "Operating Margin": 21.656680277098918,
         "Sales Growth": 18.36598180191195,
         "Profit Growth": 11.36890951276102,
-        "P/E Ratio": 26.04952
+        "P/E Ratio": 25.74041
       },
       "status": "Source: Yahoo annuals via yfinance. As of 2026-03-31."
     }
