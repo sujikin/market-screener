@@ -3,16 +3,15 @@
   "universe_key": "nifty50",
   "universe_label": "Nifty 50",
   "mode": "snapshot",
-  "generated_at": "2026-11-02T21:52:01.890998+00:00",
-  "market_data_date": "2026-10-30",
+  "generated_at": "2026-11-03T19:42:29.610703+00:00",
+  "market_data_date": "2026-11-02",
   "screened_count": 50,
   "constituent_count": 50,
   "action_counts": {
-    "HOLD": 27,
-    "CONTRA BUY": 7,
-    "EXIT": 7,
-    "BUILD": 6,
-    "SHORT": 2,
+    "HOLD": 36,
+    "BUILD": 8,
+    "EXIT": 4,
+    "CONTRA BUY": 1,
     "SELL": 1
   },
   "missing_constituents": []
