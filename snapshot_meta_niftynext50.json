@@ -3,23 +3,23 @@
   "universe_key": "niftynext50",
   "universe_label": "Nifty Next 50",
   "mode": "snapshot",
-  "generated_at": "2026-11-11T19:47:33.655218+00:00",
-  "market_data_date": "2026-11-09",
+  "generated_at": "2026-11-12T20:16:10.335435+00:00",
+  "market_data_date": "2026-11-11",
   "screened_count": 49,
   "constituent_count": 50,
   "action_counts": {
-    "HOLD": 30,
-    "BUILD": 13,
-    "EXIT": 4,
-    "SELL": 1,
-    "SHORT": 1
+    "HOLD": 28,
+    "BUILD": 11,
+    "EXIT": 5,
+    "SELL": 4,
+    "CONTRA BUY": 1
   },
   "missing_constituents": [
     {
       "ticker": "VAML.NS",
       "stock": "Vedanta Aluminium Metal Ltd.",
       "reason": "insufficient_history",
-      "history_days": 102
+      "history_days": 103
     }
   ]
 }
